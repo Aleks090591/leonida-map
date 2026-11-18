@@ -27,7 +27,9 @@ python -m http.server 8080
 - `cat`: `landmark | mission | side | secret | weapon | vehicle | activity | shop`
 - `certainty`: `confirmed` (im Spiel verifiziert) · `likely` · `speculation`
 - `x`/`y`: Spielkoordinaten in Metern (x = Ost, y = Nord), gleiches System wie gta6map.github.io.
-  Tipp: In der App einen Ort antippen zeigt dessen Koordinaten als Referenz.
+  Tipp: In der App einen Ort antippen zeigt dessen Koordinaten als Referenz (antippen = kopieren).
+- Optional: `info` (Objekt, Bezeichnung → Wert, z. B. `{"Belohnung": "$5.000"}`) wird im Detailfenster als Zusatzinfo angezeigt,
+  `url` als Link zur Quelle. Gleichnamige Einträge anderer Quellen im Umkreis von 600 m werden automatisch abgeglichen.
 
 Nach Datenänderungen in `sw.js` die Cache-Version nicht ändern nötig (Daten sind network-first);
 nach Änderungen an App-Dateien `SHELL` hochzählen (`shell-v2`).

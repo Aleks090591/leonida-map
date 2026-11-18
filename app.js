@@ -99,21 +99,36 @@ function select(id) { // ausgewählten Pin pulsieren lassen
 }
 function closeSheets() { openSheet(null); }
 
+// Abgleich: gleicher Name aus anderer Quelle, nächster Treffer im Umkreis von 600 m
+const key = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+function counterpart(p) {
+  const k = key(p.name);
+  return pois.filter((q) => q.source !== p.source && key(q.name) === k)
+    .map((q) => ({ q, d: Math.hypot(q.x - p.x, q.y - p.y) }))
+    .filter((m) => m.d <= 600).sort((a, b) => a.d - b.d)[0];
+}
+
 function showDetail(p) {
   const c = CATEGORIES[p.cat] || { label: p.cat, color: '#fff' };
-  const isFound = found.has(p.id);
+  const isFound = found.has(p.id), cmp = counterpart(p);
   $('#detail-body').innerHTML = `
     <div class="d-head" style="--c:${c.color}"><div class="d-icon"><i></i></div>
       <div><h2>${esc(p.name)}</h2><small>${esc(c.label)}${p.area ? ' · ' + esc(p.area) : ''}</small></div></div>
     <div class="tags"><span class="badge ${esc(p.certainty)}">${esc(CERTAINTY[p.certainty] || p.certainty)}</span>
       ${(p.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
     ${p.desc ? `<p>${esc(p.desc)}</p>` : ''}
-    <dl class="meta"><dt>Quelle</dt><dd>${esc(p.source)}</dd><dt>Koordinaten</dt><dd>${p.x}, ${p.y}</dd></dl>
+    <dl class="meta"><dt>Quelle</dt><dd>${esc(p.source)}${p.url ? ` · <a href="${esc(p.url)}" target="_blank" rel="noopener">ansehen</a>` : ''}</dd>
+      <dt>Koordinaten</dt><dd><button class="link" id="btn-xy">${p.x}, ${p.y} ⧉</button></dd>
+      ${Object.entries(p.info || {}).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}
+      <dt>Abgleich</dt><dd>${cmp ? `<button class="link" id="btn-cmp">${cmp.d <= 25 ? '✓ stimmt überein' : 'Abweichung'}
+        (${Math.round(cmp.d)} m) · ${esc(cmp.q.source.split(' (')[0])}</button>` : '<span class="muted">keine zweite Quelle</span>'}</dd></dl>
     <div class="actions">
       <button class="primary${isFound ? ' done' : ''}" id="btn-found">${isFound ? '✓ Gefunden' : 'Als gefunden markieren'}</button>
       <button class="ghost" id="btn-share" aria-label="Link teilen">Teilen</button>
     </div>`;
   $('#btn-found').onclick = () => { toggleFound(p); showDetail(p); };
+  $('#btn-xy').onclick = (e) => { navigator.clipboard?.writeText(`${p.x}, ${p.y}`); e.target.textContent = 'Kopiert ✓'; };
+  if (cmp) $('#btn-cmp').onclick = () => focus(cmp.q);
   $('#btn-share').onclick = () => {
     const url = location.href.split('#')[0] + '#p=' + encodeURIComponent(p.id);
     if (navigator.share) navigator.share({ title: p.name, url }).catch(() => {});
