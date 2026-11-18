@@ -28,8 +28,9 @@ let style = (() => { try { return JSON.parse(localStorage.getItem('mapStyle')); 
 if (!STYLES[style]) style = 'ingame';
 const base = L.tileLayer(`${STYLES[style]}/{z}/{z},{y},{x}.jpg`, {
   tileSize: 1024, maxNativeZoom: NATIVE[style], minZoom: 0, maxZoom: 8, noWrap: true, bounds: tileBounds,
-  attribution: 'Karte: gta6map.github.io (PD) · Orte: gtadb.org (CC BY 4.0) · Fan-Projekt, nicht mit Rockstar verbunden',
+  attribution: '<a href="https://gtadb.org">gtadb.org</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>',
 }).addTo(map);
+map.attributionControl.setPrefix(false);
 document.body.dataset.style = style;
 map.fitBounds([[-7000, -9000], [11000, 3500]]);
 
