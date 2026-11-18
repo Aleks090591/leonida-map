@@ -14,9 +14,12 @@ button { font: inherit; cursor: pointer; }
 button:active { transform: scale(.94); }
 
 /* ---------- Karte ---------- */
-#map { position: fixed; inset: 0; background: #071c2a; }
-.leaflet-container { background: #071c2a; font: inherit; }
-.leaflet-tile-pane { filter: saturate(1.45) contrast(1.12) brightness(.9) hue-rotate(-8deg); }
+#map { position: fixed; inset: 0; }
+.leaflet-container { background: #071c2a; font: inherit; transition: background .4s; }
+[data-style="ingame"] .leaflet-container { background: #34444c; }
+.leaflet-tile-pane { transition: filter .4s; }
+[data-style="atlas"] .leaflet-tile-pane { filter: saturate(1.45) contrast(1.12) brightness(.9) hue-rotate(-8deg); }
+[data-style="ingame"] .leaflet-tile-pane { filter: contrast(1.08) saturate(1.2); }
 #vignette { position: fixed; inset: 0; z-index: 500; pointer-events: none;
   background: linear-gradient(to bottom, rgba(13,10,20,.75), transparent calc(var(--safe-t) + 130px)),
               radial-gradient(120% 90% at 50% 50%, transparent 60%, rgba(13,10,20,.55)); }
