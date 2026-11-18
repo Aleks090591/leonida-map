@@ -23,10 +23,11 @@ const map = L.map('map', {
 });
 // Kartenstile: „In-Game“ (yanis, HD-Universe-Look) und „Atlas“ (dupzor, farbiges Terrain)
 const STYLES = { ingame: 'tiles/yanis', atlas: 'tiles/base' };
+const NATIVE = { ingame: 5, atlas: 6 }; // höchste vorhandene Kachel-Zoomstufe je Stil
 let style = (() => { try { return JSON.parse(localStorage.getItem('mapStyle')); } catch { return null; } })();
 if (!STYLES[style]) style = 'ingame';
 const base = L.tileLayer(`${STYLES[style]}/{z}/{z},{y},{x}.jpg`, {
-  tileSize: 1024, maxNativeZoom: 6, minZoom: 1, maxZoom: 8, noWrap: true, bounds: tileBounds,
+  tileSize: 1024, maxNativeZoom: NATIVE[style], minZoom: 1, maxZoom: 8, noWrap: true, bounds: tileBounds,
   attribution: 'Karte: gta6map.github.io (PD) · Orte: gtadb.org (CC BY 4.0) · Fan-Projekt, nicht mit Rockstar verbunden',
 }).addTo(map);
 document.body.dataset.style = style;
@@ -158,6 +159,7 @@ $('#z-style').onclick = () => {
   style = style === 'ingame' ? 'atlas' : 'ingame';
   store.set('mapStyle', style);
   document.body.dataset.style = style;
+  base.options.maxNativeZoom = NATIVE[style];
   base.setUrl(`${STYLES[style]}/{z}/{z},{y},{x}.jpg`);
 };
 $('#z-home').onclick = () => map.flyToBounds([[-7000, -9000], [11000, 3500]], { duration: 0.6 });
