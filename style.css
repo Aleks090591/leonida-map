@@ -145,3 +145,21 @@ button.primary { background: var(--grad); border-color: transparent; box-shadow:
 button.primary.done { background: #1f9a5c; box-shadow: 0 6px 20px rgba(31,154,92,.35); }
 button.ghost { background: rgba(255,255,255,.06); }
 #btn-reset { margin-top: 16px; }
+
+/* Gesamtfortschritt */
+#total { margin: 0 0 12px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,.04); border: 1px solid var(--border); }
+#total div { display: flex; align-items: baseline; gap: 6px; font-size: 14px; color: var(--muted); }
+#total b { font-size: 20px; color: var(--text); }
+#total span { margin-left: auto; font-weight: 800; color: var(--text); }
+#total i { display: block; height: 6px; margin-top: 8px; border-radius: 3px; background: rgba(255,255,255,.08);
+  background-image: var(--grad); background-size: var(--p) 100%; background-repeat: no-repeat; }
+#btn-sync { width: 100%; }
+#data-date { margin-top: 14px; font-size: 12.5px; }
+
+/* Kontextmenü, Notizen, Messen */
+.ctx { display: flex; flex-direction: column; gap: 10px; }
+.note-pin { width: 28px; height: 28px; border-radius: 50% 50% 50% 4px; display: grid; place-items: center; font-size: 15px;
+  background: #fff; color: #14101c; box-shadow: 0 0 0 3px rgba(255,79,154,.6), 0 3px 10px rgba(0,0,0,.6); }
+.note-pop p { margin: 0 0 8px; font-weight: 600; white-space: pre-wrap; }
+.dist { background: var(--glass-strong); color: var(--text); border: 1px solid var(--border); border-radius: 10px; font-weight: 800; font-size: 13px; }
+.dist::before { display: none; }

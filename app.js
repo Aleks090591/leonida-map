@@ -80,6 +80,8 @@ function renderChips() {
     const all = pois.filter((p) => p.cat === k);
     return { k, c, n: all.length, f: all.filter((p) => found.has(p.id)).length, off: hidden.has(k) ? ' off' : '' };
   });
+  const F = stats.reduce((s, x) => s + x.f, 0), N = stats.reduce((s, x) => s + x.n, 0), P = N ? Math.round((F / N) * 100) : 0;
+  $('#total').innerHTML = `<div><b>${F} / ${N}</b> gefunden<span>${P} %</span></div><i style="--p:${N ? (F / N) * 100 : 0}%"></i>`;
   $('#chips').innerHTML = stats.map(({ k, c, n, f, off }) => `<button class="chip${off}" data-cat="${k}" style="--c:${c.color};--p:${n ? (f / n) * 100 : 0}%">
       <i></i>${c.label}<small>${f} / ${n} gefunden</small><b></b></button>`).join('');
   // Schnellfilter: Kategorien mit Einträgen zuerst
@@ -167,14 +169,96 @@ $('#btn-reset').onclick = () => {
   if (!confirm('Alle „Gefunden“-Markierungen löschen?')) return;
   found.clear(); store.set('found', []); markers.forEach((m, id) => m.setIcon(icon(pois.find((p) => p.id === id)))); render();
 };
-// Langes Drücken (bzw. Rechtsklick) auf die Karte: Koordinate dieses Punkts anzeigen, antippen = kopieren
+// ---------- Eigene Notizen ----------
+let notes = store.get('notes', []);
+const noteLayer = L.layerGroup().addTo(map);
+function renderNotes() {
+  noteLayer.clearLayers();
+  for (const n of notes) {
+    L.marker([n.y, n.x], { icon: L.divIcon({ className: '', iconSize: [28, 28], html: '<div class="note-pin">✎</div>' }), title: n.text })
+      .bindPopup(() => notePopup(n), { closeButton: false, className: 'xy-pop' }).addTo(noteLayer);
+  }
+}
+function notePopup(n) {
+  const d = L.DomUtil.create('div', 'note-pop');
+  d.innerHTML = `<p>${esc(n.text)}</p><button class="link" data-a="edit">Bearbeiten</button> · <button class="link" data-a="del">Löschen</button>`;
+  d.onclick = (e) => {
+    const a = e.target.dataset.a;
+    if (a === 'edit') { const t = prompt('Notiz bearbeiten:', n.text); if (t?.trim()) { n.text = t.trim(); saveNotes(); } }
+    if (a === 'del' && confirm('Notiz löschen?')) { notes = notes.filter((q) => q !== n); saveNotes(); }
+  };
+  return d;
+}
+function saveNotes() { store.set('notes', notes); map.closePopup(); renderNotes(); }
+function addNote(ll) {
+  const t = prompt('Notiz für diesen Punkt:'); if (!t?.trim()) return;
+  notes.push({ id: Date.now().toString(36), x: Math.round(ll.lng), y: Math.round(ll.lat), text: t.trim() });
+  saveNotes();
+}
+renderNotes();
+
+// ---------- Entfernung messen (Spielkoordinaten = Meter) ----------
+let measureFrom = null;
+const measureLayer = L.layerGroup().addTo(map);
+const dot = (ll) => L.circleMarker(ll, { radius: 6, weight: 2, color: '#fff', fillColor: '#ff4f9a', fillOpacity: 1 }).addTo(measureLayer);
+const fmtDist = (m) => (m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(2).replace('.', ',')} km`);
+
+// Langes Drücken (bzw. Rechtsklick) auf die Karte: Koordinate kopieren, Notiz setzen, Messen starten
 map.on('contextmenu', (e) => {
   const xy = `${Math.round(e.latlng.lng)}, ${Math.round(e.latlng.lat)}`;
-  const b = L.DomUtil.create('button', 'link'); b.textContent = `${xy} ⧉`;
-  b.onclick = () => { navigator.clipboard?.writeText(xy); b.textContent = 'Kopiert ✓'; };
-  L.popup({ closeButton: false, className: 'xy-pop' }).setLatLng(e.latlng).setContent(b).openOn(map);
+  const d = L.DomUtil.create('div', 'ctx');
+  d.innerHTML = `<button class="link" data-a="xy">${xy} ⧉</button><button class="link" data-a="note">✎ Notiz setzen</button><button class="link" data-a="measure">📏 Messen ab hier</button>`;
+  d.onclick = (ev) => {
+    const a = ev.target.dataset.a;
+    if (a === 'xy') { navigator.clipboard?.writeText(xy); ev.target.textContent = 'Kopiert ✓'; }
+    if (a === 'note') { map.closePopup(); addNote(e.latlng); }
+    if (a === 'measure') {
+      map.closePopup(); measureLayer.clearLayers(); measureFrom = e.latlng;
+      dot(e.latlng).bindTooltip('Ziel auf der Karte antippen', { permanent: true, direction: 'top', className: 'dist' }).openTooltip();
+    }
+  };
+  L.popup({ closeButton: false, className: 'xy-pop' }).setLatLng(e.latlng).setContent(d).openOn(map);
 });
-map.on('click', () => { closeSheets(); $('#results').hidden = true; history.replaceState(null, '', location.pathname); });
+map.on('click', (e) => {
+  if (measureFrom) { // zweiter Punkt: Linie + Entfernung anzeigen
+    const a = measureFrom; measureFrom = null; measureLayer.clearLayers();
+    dot(a); dot(e.latlng);
+    L.polyline([a, e.latlng], { color: '#ff4f9a', weight: 3, dashArray: '6 6' }).addTo(measureLayer)
+      .bindTooltip(fmtDist(Math.hypot(e.latlng.lng - a.lng, e.latlng.lat - a.lat)), { permanent: true, direction: 'center', className: 'dist' }).openTooltip();
+    return;
+  }
+  measureLayer.clearLayers();
+  closeSheets(); $('#results').hidden = true; history.replaceState(null, '', location.pathname);
+});
+
+// ---------- Sync-Link: Fortschritt + Notizen komprimiert im Link (#sync=…) ----------
+async function packSync() {
+  const s = new Blob([JSON.stringify({ found: [...found], notes })]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+  const u8 = new Uint8Array(await new Response(s).arrayBuffer());
+  let bin = ''; for (const b of u8) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+async function unpackSync(str) {
+  const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/'));
+  const s = new Blob([Uint8Array.from(bin, (c) => c.charCodeAt(0))]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+  return JSON.parse(await new Response(s).text());
+}
+$('#btn-sync').onclick = async () => {
+  const url = location.href.split('#')[0] + '#sync=' + (await packSync());
+  if (navigator.share) navigator.share({ title: 'Leonida Map – Sync', url }).catch(() => {});
+  else { navigator.clipboard?.writeText(url); $('#btn-sync').textContent = 'Link kopiert ✓'; }
+};
+async function importSync() {
+  const m = location.hash.match(/#sync=(.+)/); if (!m) return;
+  history.replaceState(null, '', location.pathname);
+  let d; try { d = await unpackSync(m[1]); } catch { alert('Sync-Link ist ungültig.'); return; }
+  const f = (d.found || []).filter((id) => !found.has(id)), n = (d.notes || []).filter((x) => !notes.some((q) => q.id === x.id));
+  if (!f.length && !n.length) { alert('Sync-Link: nichts Neues – alles schon vorhanden.'); return; }
+  if (!confirm(`Sync-Link übernehmen?\n${f.length} neue Gefunden-Markierungen, ${n.length} neue Notizen (wird zusammengeführt).`)) return;
+  f.forEach((id) => found.add(id)); store.set('found', [...found]);
+  notes = notes.concat(n); saveNotes();
+  markers.forEach((mk, id) => mk.setIcon(icon(pois.find((p) => p.id === id)))); render();
+}
 
 $('#z-in').onclick = () => map.zoomIn();
 $('#z-out').onclick = () => map.zoomOut();
@@ -223,6 +307,10 @@ Promise.all(DATA_FILES.map((f) => fetch(f).then((r) => (r.ok ? r.json() : [])).c
       markers.set(p.id, m);
     }
     render();
+    // Datenstand: jüngstes „Zuletzt bearbeitet“ der gtadb-Einträge
+    const last = pois.map((p) => p.info?.['Zuletzt bearbeitet']).filter(Boolean).map((s) => s.split('.').reverse().join('-')).sort().at(-1);
+    if (last) $('#data-date').textContent = `Daten aktualisiert am ${last.split('-').reverse().join('.')} (gtadb.org)`;
+    importSync();
     const id = decodeURIComponent((location.hash.match(/#p=(.+)/) || [])[1] || '');
     const p = pois.find((q) => q.id === id);
     if (p) focus(p);
@@ -231,4 +319,10 @@ Promise.all(DATA_FILES.map((f) => fetch(f).then((r) => (r.ok ? r.json() : [])).c
 // iOS: Browser-Pinch/Pull-to-Refresh unterbinden (sonst lädt die Seite beim Rauszoomen neu)
 for (const ev of ['gesturestart', 'gesturechange']) document.addEventListener(ev, (e) => e.preventDefault(), { passive: false });
 
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+if ('serviceWorker' in navigator) {
+  // Neue Version aktiv → einmal neu laden (nicht beim allerersten Installieren)
+  const hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) location.reload(); });
+  navigator.serviceWorker.register('sw.js').then((reg) =>
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update(); }));
+}
