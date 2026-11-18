@@ -13,22 +13,35 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="vendor/leaflet.css">
   <link rel="stylesheet" href="vendor/MarkerCluster.css">
-  <link rel="stylesheet" href="vendor/MarkerCluster.Default.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="map"></div>
 
+  <div id="vignette"></div>
+
   <header id="topbar">
-    <input id="search" type="search" placeholder="Ort suchen …" autocomplete="off" enterkeyhint="search">
-    <button id="btn-filter" class="icon-btn" aria-label="Filter">☰</button>
-    <button id="btn-info" class="icon-btn" aria-label="Info">i</button>
+    <div class="bar">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="search" type="search" placeholder="Leonida durchsuchen …" autocomplete="off" enterkeyhint="search">
+      </div>
+      <button id="btn-filter" class="icon-btn" aria-label="Fortschritt &amp; Filter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
+      <button id="btn-info" class="icon-btn" aria-label="Info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
+    </div>
+    <nav id="quick" aria-label="Kategorien"></nav>
     <ul id="results" hidden></ul>
   </header>
 
+  <div id="fabs">
+    <button id="z-in" class="icon-btn" aria-label="Hineinzoomen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button id="z-out" class="icon-btn" aria-label="Herauszoomen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+    <button id="z-home" class="icon-btn" aria-label="Ganze Karte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+  </div>
+
   <section id="filter" class="sheet" hidden>
     <div class="grip"></div>
-    <h2>Kategorien</h2>
+    <h2>Fortschritt</h2>
     <div id="chips"></div>
     <label class="row"><input type="checkbox" id="hide-found"> Gefundene ausblenden</label>
   </section>
