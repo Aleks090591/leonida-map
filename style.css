@@ -130,6 +130,9 @@ button:active { transform: scale(.94); }
   background: rgba(255,255,255,.04); font-size: 13px; }
 .meta dt { color: var(--muted); } .meta dd { margin: 0; word-break: break-word; }
 button.link { padding: 0; border: 0; background: none; color: var(--accent); font-size: inherit; text-align: left; }
+.xy-pop .leaflet-popup-content-wrapper, .xy-pop .leaflet-popup-tip { background: var(--glass-strong); color: var(--text);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur); }
+.xy-pop .leaflet-popup-content { margin: 8px 14px; font-weight: 700; }
 .actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 14px; }
 
 .badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 12px; font-weight: 700; }

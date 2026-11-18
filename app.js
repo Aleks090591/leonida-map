@@ -167,6 +167,13 @@ $('#btn-reset').onclick = () => {
   if (!confirm('Alle „Gefunden“-Markierungen löschen?')) return;
   found.clear(); store.set('found', []); markers.forEach((m, id) => m.setIcon(icon(pois.find((p) => p.id === id)))); render();
 };
+// Langes Drücken (bzw. Rechtsklick) auf die Karte: Koordinate dieses Punkts anzeigen, antippen = kopieren
+map.on('contextmenu', (e) => {
+  const xy = `${Math.round(e.latlng.lng)}, ${Math.round(e.latlng.lat)}`;
+  const b = L.DomUtil.create('button', 'link'); b.textContent = `${xy} ⧉`;
+  b.onclick = () => { navigator.clipboard?.writeText(xy); b.textContent = 'Kopiert ✓'; };
+  L.popup({ closeButton: false, className: 'xy-pop' }).setLatLng(e.latlng).setContent(b).openOn(map);
+});
 map.on('click', () => { closeSheets(); $('#results').hidden = true; history.replaceState(null, '', location.pathname); });
 
 $('#z-in').onclick = () => map.zoomIn();
