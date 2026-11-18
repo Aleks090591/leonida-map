@@ -35,5 +35,9 @@ nach Änderungen an App-Dateien `SHELL` hochzählen (`shell-v2`).
 ## Quellen / Lizenz
 
 - Kartenkacheln (`tiles/base`, Set „dupzor,51“) und `data/landmarks.json`: [gta6map.github.io](https://github.com/gta6map/gta6map.github.io), Public Domain.
+- `data/gtadb.json`: [gtadb.org](https://github.com/rolux/gtadb.org) and all contributors, CC BY 4.0 (konvertiert, nur Einträge mit Spielkoordinaten).
+  Aktualisieren (nicht live von gtadb.org abrufen):
+  `git clone --filter=blob:none --sparse https://github.com/rolux/gtadb.org && cd gtadb.org && git sparse-checkout set map/data/6`,
+  dann `python tools/convert_gtadb.py gtadb.org/map/data/6/landmarks.json data/gtadb.json`.
 - Leaflet (BSD-2), Leaflet.markercluster (MIT).
 - Fan-Projekt, nicht mit Rockstar Games / Take-Two verbunden. Keine Leak-Daten verwenden.

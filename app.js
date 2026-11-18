@@ -12,7 +12,7 @@ const CATEGORIES = {
   shop:      { label: 'Shops',         color: '#ffe14f' },
 };
 const CERTAINTY = { confirmed: 'Bestätigt', likely: 'Wahrscheinlich', speculation: 'Spekulation' };
-const DATA_FILES = ['data/landmarks.json', 'data/pois.json'];
+const DATA_FILES = ['data/landmarks.json', 'data/gtadb.json', 'data/pois.json'];
 
 const crs = L.extend({}, L.CRS.Simple, { transformation: new L.Transformation(1 / 32, 512, -1 / 32, 512) });
 const tileBounds = L.latLngBounds([-8192, -16384], [12288, 4096]);
@@ -23,7 +23,7 @@ const map = L.map('map', {
 });
 L.tileLayer('tiles/base/{z}/{z},{y},{x}.jpg', {
   tileSize: 1024, maxNativeZoom: 6, minZoom: 1, maxZoom: 8, noWrap: true, bounds: tileBounds,
-  attribution: 'Karte: gta6map.github.io (PD) · Fan-Projekt, nicht mit Rockstar verbunden',
+  attribution: 'Karte: gta6map.github.io (PD) · Orte: gtadb.org (CC BY 4.0) · Fan-Projekt, nicht mit Rockstar verbunden',
 }).addTo(map);
 map.fitBounds([[-7000, -9000], [11000, 3500]]);
 
