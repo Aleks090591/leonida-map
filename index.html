@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <title>Leonida Map</title>
+  <meta name="theme-color" content="#14101c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Leonida Map">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="vendor/leaflet.css">
+  <link rel="stylesheet" href="vendor/MarkerCluster.css">
+  <link rel="stylesheet" href="vendor/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="map"></div>
+
+  <header id="topbar">
+    <input id="search" type="search" placeholder="Ort suchen …" autocomplete="off" enterkeyhint="search">
+    <button id="btn-filter" class="icon-btn" aria-label="Filter">☰</button>
+    <button id="btn-info" class="icon-btn" aria-label="Info">i</button>
+    <ul id="results" hidden></ul>
+  </header>
+
+  <section id="filter" class="sheet" hidden>
+    <div class="grip"></div>
+    <h2>Kategorien</h2>
+    <div id="chips"></div>
+    <label class="row"><input type="checkbox" id="hide-found"> Gefundene ausblenden</label>
+  </section>
+
+  <section id="detail" class="sheet" hidden>
+    <div class="grip"></div>
+    <div id="detail-body"></div>
+  </section>
+
+  <section id="info" class="sheet" hidden>
+    <div class="grip"></div>
+    <h2>Über diese Karte</h2>
+    <p><b>Inoffizielle Fan-Karte.</b> Nicht verbunden mit Rockstar Games oder Take-Two Interactive.</p>
+    <p>Jeder Eintrag hat ein Badge:
+      <span class="badge confirmed">Bestätigt</span> = offiziell/im Spiel verifiziert,
+      <span class="badge likely">Wahrscheinlich</span> = Community-Abgleich aus Trailern,
+      <span class="badge speculation">Spekulation</span>.</p>
+    <h3>Offiziell bestätigt</h3>
+    <ul>
+      <li>Staat <b>Leonida</b> (an Florida angelehnt): Vice City, Grassrivers, Leonida Keys, Ambrosia, Mount Kalaga National Park, Port Gellhorn</li>
+      <li>Protagonisten: Jason Duval &amp; Lucia Caminos</li>
+      <li>Waffen: 2 Primärwaffen + 2 Seitenwaffen am Körper, Rest im Fahrzeug</li>
+      <li>Aktivitäten u. a.: Fallschirmspringen, Wrestling, Basketball, Kajak, Tauchen</li>
+      <li>Release: 19.11.2026 (PS5, Xbox Series X|S)</li>
+    </ul>
+    <p class="muted">Missionen, Collectibles, Waffen- und Fahrzeug-Spawns werden erst nach Release verifiziert und eingetragen.</p>
+    <p class="muted">Kartenkacheln &amp; Orte: gta6map.github.io (Public Domain).</p>
+    <button id="btn-reset" class="ghost">Fortschritt zurücksetzen</button>
+  </section>
+
+  <script src="vendor/leaflet.js"></script>
+  <script src="vendor/leaflet.markercluster.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
