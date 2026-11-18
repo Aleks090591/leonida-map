@@ -1,0 +1,26 @@
+# Holt täglich die Community-Orte von gtadb (per git, nicht live von gtadb.org) und committet bei Änderungen.
+name: gtadb-Update
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: gtadb-Daten holen
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/rolux/gtadb.org /tmp/gtadb
+          git -C /tmp/gtadb sparse-checkout set map/data/6
+      - name: Konvertieren
+        run: python3 tools/convert_gtadb.py /tmp/gtadb/map/data/6/landmarks.json data/gtadb.json
+      - name: Committen, falls geändert
+        run: |
+          if git diff --quiet data/gtadb.json; then echo "Keine Änderungen"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "gtadb-Daten aktualisiert" data/gtadb.json
+          git push
