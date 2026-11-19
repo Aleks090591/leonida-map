@@ -1,17 +1,11 @@
 // Leonida Map – Spielkoordinaten in Metern (x = Ost, y = Nord), wie bei gta6map.github.io.
 // Kacheln: 1024 px, Zoom 0–6, Welt 32768 m, Ursprung (0,0) bei Pixel 16384/16384 (Zoom 5 = 1 px/m).
 
+// Beschriftungen kommen aus I18N (cat.*)
 const CATEGORIES = {
-  landmark:  { label: 'Orte',          color: '#4fb3ff' },
-  mission:   { label: 'Missionen',     color: '#ff4f9a' },
-  side:      { label: 'Nebenmissionen',color: '#ffb84f' },
-  secret:    { label: 'Secrets',       color: '#b84fff' },
-  weapon:    { label: 'Waffen',        color: '#ff5a4f' },
-  vehicle:   { label: 'Fahrzeuge',     color: '#4fff9a' },
-  activity:  { label: 'Aktivitäten',   color: '#4ffff0' },
-  shop:      { label: 'Shops',         color: '#ffe14f' },
+  landmark: { color: '#4fb3ff' }, mission: { color: '#ff4f9a' }, side: { color: '#ffb84f' }, secret: { color: '#b84fff' },
+  weapon: { color: '#ff5a4f' }, vehicle: { color: '#4fff9a' }, activity: { color: '#4ffff0' }, shop: { color: '#ffe14f' },
 };
-const CERTAINTY = { confirmed: 'Bestätigt', likely: 'Wahrscheinlich', speculation: 'Spekulation' };
 const DATA_FILES = ['data/landmarks.json', 'data/gtadb.json', 'data/pois.json'];
 
 const crs = L.extend({}, L.CRS.Simple, { transformation: new L.Transformation(1 / 32, 512, -1 / 32, 512) });
@@ -39,6 +33,99 @@ const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
 };
+// ---------- Sprache (DE/EN) ----------
+// Alle Anzeigetexte laufen über t('schlüssel'). Neue Texte immer in BEIDE Sprachen eintragen.
+// Daten sind sprachneutral (Schlüssel wie cat, certainty, tags, info.*) und werden hier übersetzt;
+// unbekannte Tags erscheinen im Original (englisch).
+const I18N = {
+  de: {
+    'cat.landmark': 'Orte', 'cat.mission': 'Missionen', 'cat.side': 'Nebenmissionen', 'cat.secret': 'Secrets',
+    'cat.weapon': 'Waffen', 'cat.vehicle': 'Fahrzeuge', 'cat.activity': 'Aktivitäten', 'cat.shop': 'Shops',
+    'cert.confirmed': 'Bestätigt', 'cert.likely': 'Wahrscheinlich', 'cert.speculation': 'Spekulation',
+    search: 'Leonida durchsuchen …', 'aria.filter': 'Fortschritt & Filter', 'aria.info': 'Info', 'aria.quick': 'Kategorien',
+    'aria.style': 'Kartenstil wechseln', 'aria.zin': 'Hineinzoomen', 'aria.zout': 'Herauszoomen', 'aria.home': 'Ganze Karte',
+    progress: 'Fortschritt', found: '{n} gefunden', hideFound: 'Gefundene ausblenden', language: 'Sprache',
+    syncTitle: 'Geräte synchronisieren', syncText: 'Link mit deinem Fortschritt und deinen Notizen. Auf dem anderen Gerät öffnen – wird dort zusammengeführt.',
+    syncBtn: 'Sync-Link teilen', syncCopied: 'Link kopiert ✓', syncInvalid: 'Sync-Link ist ungültig.',
+    syncNothing: 'Sync-Link: nichts Neues – alles schon vorhanden.',
+    syncConfirm: 'Sync-Link übernehmen?\n{f} neue Gefunden-Markierungen, {n} neue Notizen (wird zusammengeführt).',
+    dataDate: 'Daten aktualisiert am {d} (gtadb.org)', reset: 'Fortschritt zurücksetzen', resetConfirm: 'Alle „Gefunden“-Markierungen löschen?',
+    model: 'Reales Vorbild: {m}', modelShort: 'Vorbild', source: 'Quelle', view: 'ansehen', coords: 'Koordinaten', compare: 'Abgleich',
+    match: '✓ stimmt überein', mismatch: 'Abweichung', noSecond: 'keine zweite Quelle', isFound: '✓ Gefunden', markFound: 'Als gefunden markieren',
+    share: 'Teilen', shareAria: 'Link teilen', copied: 'Kopiert ✓', noHits: 'Keine Treffer',
+    edit: 'Bearbeiten', del: 'Löschen', noteEdit: 'Notiz bearbeiten:', noteDel: 'Notiz löschen?', noteNew: 'Notiz für diesen Punkt:',
+    noteSet: '✎ Notiz setzen', measure: '📏 Messen ab hier', measureTarget: 'Ziel auf der Karte antippen',
+    'info.realCoords': 'Reale Koordinaten', 'info.photos': 'Fotos', 'info.edited': 'Zuletzt bearbeitet', 'photo.game': 'Spiel', 'photo.real': 'Real',
+    'i.title': 'Über diese Karte', 'i.fan': '<b>Inoffizielle Fan-Karte.</b> Nicht verbunden mit Rockstar Games oder Take-Two Interactive.',
+    'i.badges': 'Jeder Eintrag hat ein Badge: <span class="badge confirmed">Bestätigt</span> = offiziell/im Spiel verifiziert, <span class="badge likely">Wahrscheinlich</span> = Community-Abgleich aus Trailern, <span class="badge speculation">Spekulation</span>.',
+    'i.official': 'Offiziell bestätigt',
+    'i.o1': 'Staat <b>Leonida</b> (an Florida angelehnt): Vice City, Grassrivers, Leonida Keys, Ambrosia, Mount Kalaga National Park, Port Gellhorn',
+    'i.o2': 'Protagonisten: Jason Duval &amp; Lucia Caminos', 'i.o3': 'Waffen: 2 Primärwaffen + 2 Seitenwaffen am Körper, Rest im Fahrzeug',
+    'i.o4': 'Aktivitäten u. a.: Fallschirmspringen, Wrestling, Basketball, Kajak, Tauchen', 'i.o5': 'Release: 19.11.2026 (PS5, Xbox Series X|S)',
+    'i.tips': 'Tipps', 'i.tip': 'Lange auf die Karte drücken (bzw. Rechtsklick): Koordinate kopieren, <b>eigene Notiz</b> setzen oder <b>Entfernung messen</b>.',
+    'i.later': 'Missionen, Collectibles, Waffen- und Fahrzeug-Spawns werden erst nach Release verifiziert und eingetragen.',
+    'i.credits': 'Kartenkacheln &amp; einige Orte: gta6map.github.io (Public Domain).<br>Orte/Vorbilder: <a href="https://gtadb.org">gtadb.org</a> and all contributors, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> (konvertiert).<br>Kartenstil „Day“: GTA VI Map Tiles (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>) – <a href="https://map.gtadb.org">map.gtadb.org</a>, Kartenbild © Rockstar Games.',
+    // Tags (gtadb-Typen); fehlende bleiben englisch
+    'tag.enterable': 'betretbar', 'tag.residential': 'Wohngebiet', 'tag.unconfirmed': 'unbestätigt', 'tag.retail': 'Einzelhandel',
+    'tag.transportation': 'Verkehr', 'tag.transport': 'Verkehr', 'tag.natural': 'Natur', 'tag.nature': 'Natur', 'tag.demolished': 'abgerissen',
+    'tag.industrial': 'Industrie', 'tag.hotel': 'Hotel', 'tag.leisure': 'Freizeit', 'tag.government': 'Behörde', 'tag.closed': 'geschlossen',
+    'tag.reused': 'wiederverwendet', 'tag.utilities': 'Versorgung', 'tag.bus': 'Bus', 'tag.public': 'öffentlich', 'tag.landmark': 'Wahrzeichen',
+    'tag.restaurant': 'Restaurant', 'tag.construction': 'Baustelle', 'tag.supermarket': 'Supermarkt', 'tag.commercial': 'Gewerbe',
+    'tag.gas': 'Tankstelle', 'tag.events': 'Veranstaltungen', 'tag.train': 'Zug', 'tag.mirrored': 'gespiegelt', 'tag.marina': 'Yachthafen',
+    'tag.airport': 'Flughafen', 'tag.entertainment': 'Unterhaltung', 'tag.office': 'Büro', 'tag.hair': 'Friseur', 'tag.clothes': 'Kleidung',
+    'tag.fence': 'Zaun', 'tag.guns': 'Waffenladen', 'tag.food': 'Essen', 'tag.vendor': 'Verkaufsstand', 'tag.tennis': 'Tennis',
+    'tag.safehouse': 'Unterschlupf', 'tag.racetrack': 'Rennstrecke', 'tag.modshop': 'Tuning-Werkstatt', 'tag.police': 'Polizei',
+    'tag.hospital': 'Krankenhaus', 'tag.bar': 'Bar', 'tag.electronics': 'Elektronik', 'tag.fastfood': 'Fast Food', 'tag.shoes': 'Schuhe',
+    'tag.stripclub': 'Stripclub', 'tag.nightclub': 'Nachtclub', 'tag.agriculture': 'Landwirtschaft', 'tag.jail': 'Gefängnis',
+    'tag.point-of-interest': 'Sehenswürdigkeit', 'tag.tattoos': 'Tattoos', 'tag.service': 'Dienstleistung', 'tag.drinks': 'Getränke',
+    'tag.blimp': 'Luftschiff', 'tag.carwash': 'Autowäsche', 'tag.airbase': 'Luftwaffenstützpunkt', 'tag.ferriswheel': 'Riesenrad',
+    'tag.fictional': 'fiktiv', 'tag.golf': 'Golf', 'tag.liquor': 'Spirituosen', 'tag.cancelled': 'gestrichen', 'tag.bikeshop': 'Fahrradladen',
+    'tag.gym': 'Fitnessstudio', 'tag.cinema': 'Kino', 'tag.recreation': 'Erholung', 'tag.volleyball': 'Volleyball', 'tag.pharmacy': 'Apotheke',
+  },
+  en: {
+    'cat.landmark': 'Places', 'cat.mission': 'Missions', 'cat.side': 'Side missions', 'cat.secret': 'Secrets',
+    'cat.weapon': 'Weapons', 'cat.vehicle': 'Vehicles', 'cat.activity': 'Activities', 'cat.shop': 'Shops',
+    'cert.confirmed': 'Confirmed', 'cert.likely': 'Likely', 'cert.speculation': 'Speculation',
+    search: 'Search Leonida …', 'aria.filter': 'Progress & filters', 'aria.info': 'Info', 'aria.quick': 'Categories',
+    'aria.style': 'Change map style', 'aria.zin': 'Zoom in', 'aria.zout': 'Zoom out', 'aria.home': 'Whole map',
+    progress: 'Progress', found: '{n} found', hideFound: 'Hide found', language: 'Language',
+    syncTitle: 'Sync devices', syncText: 'A link with your progress and notes. Open it on the other device – it gets merged there.',
+    syncBtn: 'Share sync link', syncCopied: 'Link copied ✓', syncInvalid: 'Sync link is invalid.',
+    syncNothing: 'Sync link: nothing new – everything is already here.',
+    syncConfirm: 'Apply sync link?\n{f} new found markers, {n} new notes (will be merged).',
+    dataDate: 'Data updated on {d} (gtadb.org)', reset: 'Reset progress', resetConfirm: 'Delete all “found” markers?',
+    model: 'Real-world model: {m}', modelShort: 'model', source: 'Source', view: 'view', coords: 'Coordinates', compare: 'Cross-check',
+    match: '✓ matches', mismatch: 'Deviation', noSecond: 'no second source', isFound: '✓ Found', markFound: 'Mark as found',
+    share: 'Share', shareAria: 'Share link', copied: 'Copied ✓', noHits: 'No results',
+    edit: 'Edit', del: 'Delete', noteEdit: 'Edit note:', noteDel: 'Delete note?', noteNew: 'Note for this spot:',
+    noteSet: '✎ Add note', measure: '📏 Measure from here', measureTarget: 'Tap the target on the map',
+    'info.realCoords': 'Real coordinates', 'info.photos': 'Photos', 'info.edited': 'Last edited', 'photo.game': 'Game', 'photo.real': 'Real',
+    'i.title': 'About this map', 'i.fan': '<b>Unofficial fan map.</b> Not affiliated with Rockstar Games or Take-Two Interactive.',
+    'i.badges': 'Every entry has a badge: <span class="badge confirmed">Confirmed</span> = official/verified in game, <span class="badge likely">Likely</span> = community match from trailers, <span class="badge speculation">Speculation</span>.',
+    'i.official': 'Officially confirmed',
+    'i.o1': 'State of <b>Leonida</b> (based on Florida): Vice City, Grassrivers, Leonida Keys, Ambrosia, Mount Kalaga National Park, Port Gellhorn',
+    'i.o2': 'Protagonists: Jason Duval &amp; Lucia Caminos', 'i.o3': 'Weapons: 2 primary + 2 sidearms on the body, the rest in the vehicle',
+    'i.o4': 'Activities include: skydiving, wrestling, basketball, kayaking, diving', 'i.o5': 'Release: Nov 19, 2026 (PS5, Xbox Series X|S)',
+    'i.tips': 'Tips', 'i.tip': 'Long-press the map (or right-click): copy the coordinate, add <b>your own note</b> or <b>measure a distance</b>.',
+    'i.later': 'Missions, collectibles, weapon and vehicle spawns will only be verified and added after release.',
+    'i.credits': 'Map tiles &amp; some places: gta6map.github.io (Public Domain).<br>Places/models: <a href="https://gtadb.org">gtadb.org</a> and all contributors, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> (converted).<br>Map style “Day”: GTA VI Map Tiles (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>) – <a href="https://map.gtadb.org">map.gtadb.org</a>, map image © Rockstar Games.',
+  },
+};
+let lang = store.get('lang', null);
+if (!I18N[lang]) lang = (navigator.language || '').toLowerCase().startsWith('de') ? 'de' : 'en';
+const t = (k, v = {}) => (I18N[lang][k] ?? I18N.en[k] ?? k).replace(/\{(\w+)\}/g, (_, x) => v[x] ?? '');
+const tag = (s) => I18N[lang]['tag.' + s] ?? s;
+const fmtDate = (iso) => new Date(iso).toLocaleDateString(lang, { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' });
+const pname = (p) => (p.unnamed ? `${p.name} (${t('modelShort')})` : p.name); // unbenannt: Name des realen Vorbilds
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach((e) => (e.innerHTML = t(e.dataset.i18n)));
+  document.querySelectorAll('[data-i18n-ph]').forEach((e) => (e.placeholder = t(e.dataset.i18nPh)));
+  document.querySelectorAll('[data-i18n-aria]').forEach((e) => e.setAttribute('aria-label', t(e.dataset.i18nAria)));
+  document.querySelectorAll('#lang button').forEach((b) => b.classList.toggle('on', b.dataset.lang === lang));
+}
+applyLang();
+
 const found = new Set(store.get('found', []));
 const hidden = new Set(store.get('hiddenCats', []));
 let hideFound = store.get('hideFound', false);
@@ -81,12 +168,12 @@ function renderChips() {
     return { k, c, n: all.length, f: all.filter((p) => found.has(p.id)).length, off: hidden.has(k) ? ' off' : '' };
   });
   const F = stats.reduce((s, x) => s + x.f, 0), N = stats.reduce((s, x) => s + x.n, 0), P = N ? Math.round((F / N) * 100) : 0;
-  $('#total').innerHTML = `<div><b>${F} / ${N}</b> gefunden<span>${P} %</span></div><i style="--p:${N ? (F / N) * 100 : 0}%"></i>`;
+  $('#total').innerHTML = `<div>${t('found', { n: `<b>${F} / ${N}</b>` })}<span>${P} %</span></div><i style="--p:${N ? (F / N) * 100 : 0}%"></i>`;
   $('#chips').innerHTML = stats.map(({ k, c, n, f, off }) => `<button class="chip${off}" data-cat="${k}" style="--c:${c.color};--p:${n ? (f / n) * 100 : 0}%">
-      <i></i>${c.label}<small>${f} / ${n} gefunden</small><b></b></button>`).join('');
+      <i></i>${t('cat.' + k)}<small>${t('found', { n: `${f} / ${n}` })}</small><b></b></button>`).join('');
   // Schnellfilter: Kategorien mit Einträgen zuerst
   $('#quick').innerHTML = [...stats].sort((a, b) => (b.n > 0) - (a.n > 0)).map(({ k, c, n, off }) =>
-    `<button class="qchip${off}${n ? '' : ' empty'}" data-cat="${k}" style="--c:${c.color}"><i></i>${c.label}<small>${n}</small></button>`).join('');
+    `<button class="qchip${off}${n ? '' : ' empty'}" data-cat="${k}" style="--c:${c.color}"><i></i>${t('cat.' + k)}<small>${n}</small></button>`).join('');
   $('#btn-filter').classList.toggle('on', hidden.size > 0 || hideFound);
 }
 
@@ -111,29 +198,31 @@ function counterpart(p) {
 }
 
 function showDetail(p) {
-  const c = CATEGORIES[p.cat] || { label: p.cat, color: '#fff' };
+  const c = CATEGORIES[p.cat] || { color: '#fff' };
+  const info = (k, v) => (k === 'photos' ? v.map((x) => t('photo.' + x)).join(', ') : k === 'edited' ? fmtDate(v) : v);
   const isFound = found.has(p.id), cmp = counterpart(p);
   $('#detail-body').innerHTML = `
     <div class="d-head" style="--c:${c.color}"><div class="d-icon"><i></i></div>
-      <div><h2>${esc(p.name)}</h2><small>${esc(c.label)}${p.area ? ' · ' + esc(p.area) : ''}</small></div></div>
-    <div class="tags"><span class="badge ${esc(p.certainty)}">${esc(CERTAINTY[p.certainty] || p.certainty)}</span>
-      ${(p.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</div>
+      <div><h2>${esc(pname(p))}</h2><small>${esc(t('cat.' + p.cat))}${p.area ? ' · ' + esc(p.area) : ''}</small></div></div>
+    <div class="tags"><span class="badge ${esc(p.certainty)}">${esc(t('cert.' + p.certainty))}</span>
+      ${(p.tags || []).map((s) => `<span class="tag">${esc(tag(s))}</span>`).join('')}</div>
+    ${p.model ? `<p>${esc(t('model', { m: p.model }))}</p>` : ''}
     ${p.desc ? `<p>${esc(p.desc)}</p>` : ''}
-    <dl class="meta"><dt>Quelle</dt><dd>${esc(p.source)}${p.url ? ` · <a href="${esc(p.url)}" target="_blank" rel="noopener">ansehen</a>` : ''}</dd>
-      <dt>Koordinaten</dt><dd><button class="link" id="btn-xy">${p.x}, ${p.y} ⧉</button></dd>
-      ${Object.entries(p.info || {}).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}
-      <dt>Abgleich</dt><dd>${cmp ? `<button class="link" id="btn-cmp">${cmp.d <= 25 ? '✓ stimmt überein' : 'Abweichung'}
-        (${Math.round(cmp.d)} m) · ${esc(cmp.q.source.split(' (')[0])}</button>` : '<span class="muted">keine zweite Quelle</span>'}</dd></dl>
+    <dl class="meta"><dt>${t('source')}</dt><dd>${esc(p.source)}${p.url ? ` · <a href="${esc(p.url)}" target="_blank" rel="noopener">${t('view')}</a>` : ''}</dd>
+      <dt>${t('coords')}</dt><dd><button class="link" id="btn-xy">${p.x}, ${p.y} ⧉</button></dd>
+      ${Object.entries(p.info || {}).map(([k, v]) => `<dt>${esc(t('info.' + k))}</dt><dd>${esc(info(k, v))}</dd>`).join('')}
+      <dt>${t('compare')}</dt><dd>${cmp ? `<button class="link" id="btn-cmp">${cmp.d <= 25 ? t('match') : t('mismatch')}
+        (${Math.round(cmp.d)} m) · ${esc(cmp.q.source.split(' (')[0])}</button>` : `<span class="muted">${t('noSecond')}</span>`}</dd></dl>
     <div class="actions">
-      <button class="primary${isFound ? ' done' : ''}" id="btn-found">${isFound ? '✓ Gefunden' : 'Als gefunden markieren'}</button>
-      <button class="ghost" id="btn-share" aria-label="Link teilen">Teilen</button>
+      <button class="primary${isFound ? ' done' : ''}" id="btn-found">${isFound ? t('isFound') : t('markFound')}</button>
+      <button class="ghost" id="btn-share" aria-label="${t('shareAria')}">${t('share')}</button>
     </div>`;
   $('#btn-found').onclick = () => { toggleFound(p); showDetail(p); };
-  $('#btn-xy').onclick = (e) => { navigator.clipboard?.writeText(`${p.x}, ${p.y}`); e.target.textContent = 'Kopiert ✓'; };
+  $('#btn-xy').onclick = (e) => { navigator.clipboard?.writeText(`${p.x}, ${p.y}`); e.target.textContent = t('copied'); };
   if (cmp) $('#btn-cmp').onclick = () => focus(cmp.q);
   $('#btn-share').onclick = () => {
     const url = location.href.split('#')[0] + '#p=' + encodeURIComponent(p.id);
-    if (navigator.share) navigator.share({ title: p.name, url }).catch(() => {});
+    if (navigator.share) navigator.share({ title: pname(p), url }).catch(() => {});
     else navigator.clipboard?.writeText(url);
   };
   openSheet('#detail');
@@ -166,7 +255,7 @@ $('#chips').onclick = $('#quick').onclick = (e) => {
 $('#hide-found').checked = hideFound;
 $('#hide-found').onchange = (e) => { hideFound = e.target.checked; store.set('hideFound', hideFound); render(); };
 $('#btn-reset').onclick = () => {
-  if (!confirm('Alle „Gefunden“-Markierungen löschen?')) return;
+  if (!confirm(t('resetConfirm'))) return;
   found.clear(); store.set('found', []); markers.forEach((m, id) => m.setIcon(icon(pois.find((p) => p.id === id)))); render();
 };
 // ---------- Eigene Notizen ----------
@@ -181,18 +270,18 @@ function renderNotes() {
 }
 function notePopup(n) {
   const d = L.DomUtil.create('div', 'note-pop');
-  d.innerHTML = `<p>${esc(n.text)}</p><button class="link" data-a="edit">Bearbeiten</button> · <button class="link" data-a="del">Löschen</button>`;
+  d.innerHTML = `<p>${esc(n.text)}</p><button class="link" data-a="edit">${t('edit')}</button> · <button class="link" data-a="del">${t('del')}</button>`;
   d.onclick = (e) => {
     const a = e.target.dataset.a;
-    if (a === 'edit') { const t = prompt('Notiz bearbeiten:', n.text); if (t?.trim()) { n.text = t.trim(); saveNotes(); } }
-    if (a === 'del' && confirm('Notiz löschen?')) { notes = notes.filter((q) => q !== n); saveNotes(); }
+    if (a === 'edit') { const s = prompt(t('noteEdit'), n.text); if (s?.trim()) { n.text = s.trim(); saveNotes(); } }
+    if (a === 'del' && confirm(t('noteDel'))) { notes = notes.filter((q) => q !== n); saveNotes(); }
   };
   return d;
 }
 function saveNotes() { store.set('notes', notes); map.closePopup(); renderNotes(); }
 function addNote(ll) {
-  const t = prompt('Notiz für diesen Punkt:'); if (!t?.trim()) return;
-  notes.push({ id: Date.now().toString(36), x: Math.round(ll.lng), y: Math.round(ll.lat), text: t.trim() });
+  const s = prompt(t('noteNew')); if (!s?.trim()) return;
+  notes.push({ id: Date.now().toString(36), x: Math.round(ll.lng), y: Math.round(ll.lat), text: s.trim() });
   saveNotes();
 }
 renderNotes();
@@ -201,20 +290,20 @@ renderNotes();
 let measureFrom = null;
 const measureLayer = L.layerGroup().addTo(map);
 const dot = (ll) => L.circleMarker(ll, { radius: 6, weight: 2, color: '#fff', fillColor: '#ff4f9a', fillOpacity: 1 }).addTo(measureLayer);
-const fmtDist = (m) => (m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toFixed(2).replace('.', ',')} km`);
+const fmtDist = (m) => (m < 1000 ? `${Math.round(m)} m` : `${(m / 1000).toLocaleString(lang, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} km`);
 
 // Langes Drücken (bzw. Rechtsklick) auf die Karte: Koordinate kopieren, Notiz setzen, Messen starten
 map.on('contextmenu', (e) => {
   const xy = `${Math.round(e.latlng.lng)}, ${Math.round(e.latlng.lat)}`;
   const d = L.DomUtil.create('div', 'ctx');
-  d.innerHTML = `<button class="link" data-a="xy">${xy} ⧉</button><button class="link" data-a="note">✎ Notiz setzen</button><button class="link" data-a="measure">📏 Messen ab hier</button>`;
+  d.innerHTML = `<button class="link" data-a="xy">${xy} ⧉</button><button class="link" data-a="note">${t('noteSet')}</button><button class="link" data-a="measure">${t('measure')}</button>`;
   d.onclick = (ev) => {
     const a = ev.target.dataset.a;
-    if (a === 'xy') { navigator.clipboard?.writeText(xy); ev.target.textContent = 'Kopiert ✓'; }
+    if (a === 'xy') { navigator.clipboard?.writeText(xy); ev.target.textContent = t('copied'); }
     if (a === 'note') { map.closePopup(); addNote(e.latlng); }
     if (a === 'measure') {
       map.closePopup(); measureLayer.clearLayers(); measureFrom = e.latlng;
-      dot(e.latlng).bindTooltip('Ziel auf der Karte antippen', { permanent: true, direction: 'top', className: 'dist' }).openTooltip();
+      dot(e.latlng).bindTooltip(t('measureTarget'), { permanent: true, direction: 'top', className: 'dist' }).openTooltip();
     }
   };
   L.popup({ closeButton: false, className: 'xy-pop' }).setLatLng(e.latlng).setContent(d).openOn(map);
@@ -246,20 +335,34 @@ async function unpackSync(str) {
 $('#btn-sync').onclick = async () => {
   const url = location.href.split('#')[0] + '#sync=' + (await packSync());
   if (navigator.share) navigator.share({ title: 'Leonida Map – Sync', url }).catch(() => {});
-  else { navigator.clipboard?.writeText(url); $('#btn-sync').textContent = 'Link kopiert ✓'; }
+  else { navigator.clipboard?.writeText(url); $('#btn-sync').textContent = t('syncCopied'); }
 };
 async function importSync() {
   const m = location.hash.match(/#sync=(.+)/); if (!m) return;
   history.replaceState(null, '', location.pathname);
-  let d; try { d = await unpackSync(m[1]); } catch { alert('Sync-Link ist ungültig.'); return; }
+  let d; try { d = await unpackSync(m[1]); } catch { alert(t('syncInvalid')); return; }
   const f = (d.found || []).filter((id) => !found.has(id)), n = (d.notes || []).filter((x) => !notes.some((q) => q.id === x.id));
-  if (!f.length && !n.length) { alert('Sync-Link: nichts Neues – alles schon vorhanden.'); return; }
-  if (!confirm(`Sync-Link übernehmen?\n${f.length} neue Gefunden-Markierungen, ${n.length} neue Notizen (wird zusammengeführt).`)) return;
+  if (!f.length && !n.length) { alert(t('syncNothing')); return; }
+  if (!confirm(t('syncConfirm', { f: f.length, n: n.length }))) return;
   f.forEach((id) => found.add(id)); store.set('found', [...found]);
   notes = notes.concat(n); saveNotes();
   markers.forEach((mk, id) => mk.setIcon(icon(pois.find((p) => p.id === id)))); render();
 }
 
+// Datenstand: jüngstes „edited“ der gtadb-Einträge
+function showDataDate() {
+  const last = pois.map((p) => p.info?.edited).filter(Boolean).sort().at(-1);
+  $('#data-date').textContent = last ? t('dataDate', { d: fmtDate(last) }) : '';
+}
+$('#lang').onclick = (e) => {
+  const l = e.target.closest('[data-lang]')?.dataset.lang; if (!l || l === lang) return;
+  lang = l; store.set('lang', lang);
+  applyLang(); renderChips(); showDataDate();
+  map.closePopup(); $('#results').hidden = true; $('#search').value = '';
+  const p = selected && pois.find((q) => q.id === selected);
+  if (p && !$('#detail').hidden) showDetail(p);
+  markers.forEach((m, id) => { const q = pois.find((x) => x.id === id); if (m._icon) m._icon.title = pname(q); m.options.title = pname(q); });
+};
 $('#z-in').onclick = () => map.zoomIn();
 $('#z-out').onclick = () => map.zoomOut();
 $('#z-style').onclick = () => {
@@ -288,9 +391,9 @@ $('#search').oninput = (e) => {
   const q = norm(e.target.value.trim());
   const ul = $('#results');
   if (q.length < 2) { ul.hidden = true; return; }
-  const hits = pois.filter((p) => norm(`${p.name} ${p.area} ${p.desc} ${(p.tags || []).join(' ')}`).includes(q)).slice(0, 30);
-  ul.innerHTML = hits.map((p) => `<li data-id="${esc(p.id)}" style="--c:${CATEGORIES[p.cat]?.color || '#fff'}"><i></i><div>${esc(p.name)}<small>${esc(CATEGORIES[p.cat]?.label)}${p.area ? ' · ' + esc(p.area) : ''}</small></div></li>`).join('')
-    || '<li class="muted">Keine Treffer</li>';
+  const hits = pois.filter((p) => norm(`${pname(p)} ${p.area} ${p.model} ${p.desc} ${(p.tags || []).map((s) => s + ' ' + tag(s)).join(' ')}`).includes(q)).slice(0, 30);
+  ul.innerHTML = hits.map((p) => `<li data-id="${esc(p.id)}" style="--c:${CATEGORIES[p.cat]?.color || '#fff'}"><i></i><div>${esc(pname(p))}<small>${esc(t('cat.' + p.cat))}${p.area ? ' · ' + esc(p.area) : ''}</small></div></li>`).join('')
+    || `<li class="muted">${t('noHits')}</li>`;
   ul.hidden = false;
 };
 $('#results').onclick = (e) => {
@@ -303,14 +406,12 @@ Promise.all(DATA_FILES.map((f) => fetch(f).then((r) => (r.ok ? r.json() : [])).c
   .then((lists) => {
     pois = lists.flat().filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
     for (const p of pois) {
-      const m = L.marker([p.y, p.x], { icon: icon(p), title: p.name, cat: p.cat });
+      const m = L.marker([p.y, p.x], { icon: icon(p), title: pname(p), cat: p.cat });
       m.on('click', () => showDetail(p));
       markers.set(p.id, m);
     }
     render();
-    // Datenstand: jüngstes „Zuletzt bearbeitet“ der gtadb-Einträge
-    const last = pois.map((p) => p.info?.['Zuletzt bearbeitet']).filter(Boolean).map((s) => s.split('.').reverse().join('-')).sort().at(-1);
-    if (last) $('#data-date').textContent = `Daten aktualisiert am ${last.split('-').reverse().join('.')} (gtadb.org)`;
+    showDataDate();
     importSync();
     const id = decodeURIComponent((location.hash.match(/#p=(.+)/) || [])[1] || '');
     const p = pois.find((q) => q.id === id);

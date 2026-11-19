@@ -164,3 +164,8 @@ button.ghost { background: rgba(255,255,255,.06); }
 .note-pop p { margin: 0 0 8px; font-weight: 600; white-space: pre-wrap; }
 .dist { background: var(--glass-strong); color: var(--text); border: 1px solid var(--border); border-radius: 10px; font-weight: 800; font-size: 13px; }
 .dist::before { display: none; }
+
+/* Sprachwahl */
+#lang { display: flex; gap: 8px; }
+#lang button { flex: 1; background: rgba(255,255,255,.06); }
+#lang button.on { background: var(--accent); color: #fff; }

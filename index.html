@@ -24,32 +24,34 @@
     <div class="bar">
       <div class="search-wrap">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input id="search" type="search" placeholder="Leonida durchsuchen …" autocomplete="off" enterkeyhint="search">
+        <input id="search" type="search" data-i18n-ph="search" placeholder="Leonida durchsuchen …" autocomplete="off" enterkeyhint="search">
       </div>
-      <button id="btn-filter" class="icon-btn" aria-label="Fortschritt &amp; Filter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
-      <button id="btn-info" class="icon-btn" aria-label="Info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
+      <button id="btn-filter" class="icon-btn" data-i18n-aria="aria.filter" aria-label="Fortschritt &amp; Filter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
+      <button id="btn-info" class="icon-btn" data-i18n-aria="aria.info" aria-label="Info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></button>
     </div>
-    <nav id="quick" aria-label="Kategorien"></nav>
+    <nav id="quick" data-i18n-aria="aria.quick" aria-label="Kategorien"></nav>
     <ul id="results" hidden></ul>
   </header>
 
   <div id="fabs">
-    <button id="z-style" class="icon-btn" aria-label="Kartenstil wechseln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></svg></button>
-    <button id="z-in" class="icon-btn" aria-label="Hineinzoomen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
-    <button id="z-out" class="icon-btn" aria-label="Herauszoomen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
-    <button id="z-home" class="icon-btn" aria-label="Ganze Karte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+    <button id="z-style" class="icon-btn" data-i18n-aria="aria.style" aria-label="Kartenstil wechseln"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></svg></button>
+    <button id="z-in" class="icon-btn" data-i18n-aria="aria.zin" aria-label="Hineinzoomen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button id="z-out" class="icon-btn" data-i18n-aria="aria.zout" aria-label="Herauszoomen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+    <button id="z-home" class="icon-btn" data-i18n-aria="aria.home" aria-label="Ganze Karte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
   </div>
 
   <section id="filter" class="sheet" hidden>
     <div class="grip"></div>
-    <h2>Fortschritt</h2>
+    <h2 data-i18n="progress">Fortschritt</h2>
     <div id="total"></div>
     <div id="chips"></div>
-    <label class="row"><input type="checkbox" id="hide-found"> Gefundene ausblenden</label>
-    <h3>Geräte synchronisieren</h3>
-    <p class="muted">Link mit deinem Fortschritt und deinen Notizen. Auf dem anderen Gerät öffnen – wird dort zusammengeführt.</p>
-    <button id="btn-sync" class="ghost">Sync-Link teilen</button>
+    <label class="row"><input type="checkbox" id="hide-found"> <span data-i18n="hideFound">Gefundene ausblenden</span></label>
+    <h3 data-i18n="syncTitle">Geräte synchronisieren</h3>
+    <p class="muted" data-i18n="syncText">Link mit deinem Fortschritt und deinen Notizen. Auf dem anderen Gerät öffnen – wird dort zusammengeführt.</p>
+    <button id="btn-sync" class="ghost" data-i18n="syncBtn">Sync-Link teilen</button>
     <p class="muted" id="data-date"></p>
+    <h3 data-i18n="language">Sprache</h3>
+    <div id="lang"><button data-lang="de">Deutsch</button><button data-lang="en">English</button></div>
   </section>
 
   <section id="detail" class="sheet" hidden>
@@ -59,25 +61,25 @@
 
   <section id="info" class="sheet" hidden>
     <div class="grip"></div>
-    <h2>Über diese Karte</h2>
-    <p><b>Inoffizielle Fan-Karte.</b> Nicht verbunden mit Rockstar Games oder Take-Two Interactive.</p>
-    <p>Jeder Eintrag hat ein Badge:
+    <h2 data-i18n="i.title">Über diese Karte</h2>
+    <p data-i18n="i.fan"><b>Inoffizielle Fan-Karte.</b> Nicht verbunden mit Rockstar Games oder Take-Two Interactive.</p>
+    <p data-i18n="i.badges">Jeder Eintrag hat ein Badge:
       <span class="badge confirmed">Bestätigt</span> = offiziell/im Spiel verifiziert,
       <span class="badge likely">Wahrscheinlich</span> = Community-Abgleich aus Trailern,
       <span class="badge speculation">Spekulation</span>.</p>
-    <h3>Offiziell bestätigt</h3>
+    <h3 data-i18n="i.official">Offiziell bestätigt</h3>
     <ul>
-      <li>Staat <b>Leonida</b> (an Florida angelehnt): Vice City, Grassrivers, Leonida Keys, Ambrosia, Mount Kalaga National Park, Port Gellhorn</li>
-      <li>Protagonisten: Jason Duval &amp; Lucia Caminos</li>
-      <li>Waffen: 2 Primärwaffen + 2 Seitenwaffen am Körper, Rest im Fahrzeug</li>
-      <li>Aktivitäten u. a.: Fallschirmspringen, Wrestling, Basketball, Kajak, Tauchen</li>
-      <li>Release: 19.11.2026 (PS5, Xbox Series X|S)</li>
+      <li data-i18n="i.o1">Staat <b>Leonida</b> (an Florida angelehnt): Vice City, Grassrivers, Leonida Keys, Ambrosia, Mount Kalaga National Park, Port Gellhorn</li>
+      <li data-i18n="i.o2">Protagonisten: Jason Duval &amp; Lucia Caminos</li>
+      <li data-i18n="i.o3">Waffen: 2 Primärwaffen + 2 Seitenwaffen am Körper, Rest im Fahrzeug</li>
+      <li data-i18n="i.o4">Aktivitäten u. a.: Fallschirmspringen, Wrestling, Basketball, Kajak, Tauchen</li>
+      <li data-i18n="i.o5">Release: 19.11.2026 (PS5, Xbox Series X|S)</li>
     </ul>
-    <h3>Tipps</h3>
-    <p>Lange auf die Karte drücken (bzw. Rechtsklick): Koordinate kopieren, <b>eigene Notiz</b> setzen oder <b>Entfernung messen</b>.</p>
-    <p class="muted">Missionen, Collectibles, Waffen- und Fahrzeug-Spawns werden erst nach Release verifiziert und eingetragen.</p>
-    <p class="muted">Kartenkacheln &amp; einige Orte: gta6map.github.io (Public Domain).<br>Orte/Vorbilder: <a href="https://gtadb.org">gtadb.org</a> and all contributors, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> (konvertiert).<br>Kartenstil „Day“: GTA VI Map Tiles (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>) – <a href="https://map.gtadb.org">map.gtadb.org</a>, Kartenbild © Rockstar Games.</p>
-    <button id="btn-reset" class="ghost">Fortschritt zurücksetzen</button>
+    <h3 data-i18n="i.tips">Tipps</h3>
+    <p data-i18n="i.tip">Lange auf die Karte drücken (bzw. Rechtsklick): Koordinate kopieren, <b>eigene Notiz</b> setzen oder <b>Entfernung messen</b>.</p>
+    <p class="muted" data-i18n="i.later">Missionen, Collectibles, Waffen- und Fahrzeug-Spawns werden erst nach Release verifiziert und eingetragen.</p>
+    <p class="muted" data-i18n="i.credits">Kartenkacheln &amp; einige Orte: gta6map.github.io (Public Domain).<br>Orte/Vorbilder: <a href="https://gtadb.org">gtadb.org</a> and all contributors, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> (konvertiert).<br>Kartenstil „Day“: GTA VI Map Tiles (<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>) – <a href="https://map.gtadb.org">map.gtadb.org</a>, Kartenbild © Rockstar Games.</p>
+    <button id="btn-reset" class="ghost" data-i18n="reset">Fortschritt zurücksetzen</button>
   </section>
 
   <script src="vendor/leaflet.js"></script>
