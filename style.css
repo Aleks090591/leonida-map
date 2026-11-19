@@ -17,6 +17,7 @@ button:active { transform: scale(.94); }
 #map { position: fixed; inset: 0; }
 .leaflet-container { background: #071c2a; font: inherit; transition: background .4s; }
 [data-style="ingame"] .leaflet-container { background: #34444c; }
+[data-style="day"] .leaflet-container { background: #2f90b0; }
 .leaflet-tile-pane { transition: filter .4s; }
 [data-style="atlas"] .leaflet-tile-pane { filter: saturate(1.45) contrast(1.12) brightness(.9) hue-rotate(-8deg); }
 [data-style="ingame"] .leaflet-tile-pane { filter: contrast(1.08) saturate(1.2); }

@@ -21,9 +21,9 @@ const map = L.map('map', {
   crs, minZoom: 0, maxZoom: 8, zoomSnap: 0.25, attributionControl: true,
   maxBounds: tileBounds.pad(0.1), maxBoundsViscosity: 0.8,
 });
-// Kartenstile: „In-Game“ (yanis, HD-Universe-Look) und „Atlas“ (dupzor, farbiges Terrain)
-const STYLES = { ingame: 'tiles/yanis', atlas: 'tiles/base' };
-const NATIVE = { ingame: 5, atlas: 6 }; // höchste vorhandene Kachel-Zoomstufe je Stil
+// Kartenstile: „In-Game“ (yanis, HD-Universe-Look), „Atlas“ (dupzor, farbiges Terrain), „Day“ (gtadb, offizielle Karte)
+const STYLES = { ingame: 'tiles/yanis', atlas: 'tiles/base', day: 'tiles/day' };
+const NATIVE = { ingame: 5, atlas: 6, day: 6 }; // höchste vorhandene Kachel-Zoomstufe je Stil
 let style = (() => { try { return JSON.parse(localStorage.getItem('mapStyle')); } catch { return null; } })();
 if (!STYLES[style]) style = 'ingame';
 const base = L.tileLayer(`${STYLES[style]}/{z}/{z},{y},{x}.jpg`, {
@@ -263,7 +263,8 @@ async function importSync() {
 $('#z-in').onclick = () => map.zoomIn();
 $('#z-out').onclick = () => map.zoomOut();
 $('#z-style').onclick = () => {
-  style = style === 'ingame' ? 'atlas' : 'ingame';
+  const keys = Object.keys(STYLES);
+  style = keys[(keys.indexOf(style) + 1) % keys.length];
   store.set('mapStyle', style);
   document.body.dataset.style = style;
   base.options.maxNativeZoom = NATIVE[style];
