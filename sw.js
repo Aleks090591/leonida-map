@@ -1,5 +1,5 @@
 // App-Shell vorab cachen, Kacheln cache-first (wachsen beim Benutzen), Daten network-first.
-const SHELL = 'shell-v18', TILES = 'tiles-v2', DATA = 'data-v1';
+const SHELL = 'shell-v19', TILES = 'tiles-v2', DATA = 'data-v1';
 const SHELL_FILES = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest',
   'vendor/leaflet.js', 'vendor/leaflet.css', 'vendor/leaflet.markercluster.js', 'vendor/MarkerCluster.css',
   'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'];

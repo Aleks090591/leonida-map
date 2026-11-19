@@ -48,6 +48,9 @@ const I18N = {
     syncTitle: 'Geräte synchronisieren', syncText: 'Link mit deinem Fortschritt und deinen Notizen. Auf dem anderen Gerät öffnen – wird dort zusammengeführt.',
     syncBtn: 'Sync-Link teilen', syncCopied: 'Link kopiert ✓', syncInvalid: 'Sync-Link ist ungültig.',
     syncNothing: 'Sync-Link: nichts Neues – alles schon vorhanden.',
+    ownTitle: 'Eigene Daten', ownText: 'JSON-Datei mit zusätzlichen Markern laden. Bleibt nur auf diesem Gerät gespeichert.',
+    ownBtn: 'Eigene Daten importieren', ownDel: 'Eigene Daten löschen', ownInfo: '{n} eigene Marker geladen',
+    ownInvalid: 'Datei ist keine gültige Marker-Liste.', ownDelConfirm: 'Eigene Daten von diesem Gerät löschen?',
     syncConfirm: 'Sync-Link übernehmen?\n{f} neue Gefunden-Markierungen, {n} neue Notizen (wird zusammengeführt).',
     dataDate: 'Daten aktualisiert am {d} (gtadb.org)', reset: 'Fortschritt zurücksetzen', resetConfirm: 'Alle „Gefunden“-Markierungen löschen?',
     model: 'Reales Vorbild: {m}', modelShort: 'Vorbild', source: 'Quelle', view: 'ansehen', coords: 'Koordinaten', compare: 'Abgleich',
@@ -92,6 +95,9 @@ const I18N = {
     syncTitle: 'Sync devices', syncText: 'A link with your progress and notes. Open it on the other device – it gets merged there.',
     syncBtn: 'Share sync link', syncCopied: 'Link copied ✓', syncInvalid: 'Sync link is invalid.',
     syncNothing: 'Sync link: nothing new – everything is already here.',
+    ownTitle: 'Own data', ownText: 'Load a JSON file with additional markers. Stays stored on this device only.',
+    ownBtn: 'Import own data', ownDel: 'Delete own data', ownInfo: '{n} own markers loaded',
+    ownInvalid: 'File is not a valid marker list.', ownDelConfirm: 'Delete own data from this device?',
     syncConfirm: 'Apply sync link?\n{f} new found markers, {n} new notes (will be merged).',
     dataDate: 'Data updated on {d} (gtadb.org)', reset: 'Reset progress', resetConfirm: 'Delete all “found” markers?',
     model: 'Real-world model: {m}', modelShort: 'model', source: 'Source', view: 'view', coords: 'Coordinates', compare: 'Cross-check',
@@ -208,6 +214,7 @@ function showDetail(p) {
       ${(p.tags || []).map((s) => `<span class="tag">${esc(tag(s))}</span>`).join('')}</div>
     ${p.model ? `<p>${esc(t('model', { m: p.model }))}</p>` : ''}
     ${p.desc ? `<p>${esc(p.desc)}</p>` : ''}
+    ${(p.imgs || []).map((u) => `<img class="d-photo" src="${esc(u)}" loading="lazy" alt="">`).join('')}
     <dl class="meta"><dt>${t('source')}</dt><dd>${esc(p.source)}${p.url ? ` · <a href="${esc(p.url)}" target="_blank" rel="noopener">${t('view')}</a>` : ''}</dd>
       <dt>${t('coords')}</dt><dd><button class="link" id="btn-xy">${p.x}, ${p.y} ⧉</button></dd>
       ${Object.entries(p.info || {}).map(([k, v]) => `<dt>${esc(t('info.' + k))}</dt><dd>${esc(info(k, v))}</dd>`).join('')}
@@ -357,7 +364,7 @@ function showDataDate() {
 $('#lang').onclick = (e) => {
   const l = e.target.closest('[data-lang]')?.dataset.lang; if (!l || l === lang) return;
   lang = l; store.set('lang', lang);
-  applyLang(); renderChips(); showDataDate();
+  applyLang(); renderChips(); showDataDate(); showOwn();
   map.closePopup(); $('#results').hidden = true; $('#search').value = '';
   const p = selected && pois.find((q) => q.id === selected);
   if (p && !$('#detail').hidden) showDetail(p);
@@ -401,8 +408,38 @@ $('#results').onclick = (e) => {
   $('#results').hidden = true; $('#search').blur(); focus(pois.find((p) => p.id === id));
 };
 
+// ---------- Eigene Daten (nur lokal in IndexedDB) ----------
+function ownDB(mode, fn) {
+  return new Promise((res, rej) => {
+    const o = indexedDB.open('leonida', 1);
+    o.onupgradeneeded = () => o.result.createObjectStore('own');
+    o.onerror = () => rej(o.error);
+    o.onsuccess = () => { const tx = o.result.transaction('own', mode), r = fn(tx.objectStore('own')); tx.oncomplete = () => res(r.result); tx.onerror = () => rej(tx.error); };
+  });
+}
+const ownGet = () => ownDB('readonly', (s) => s.get('pois')).then((l) => l || []).catch(() => []);
+let ownCount = 0;
+function showOwn() {
+  $('#own-info').hidden = $('#btn-import-del').hidden = !ownCount;
+  $('#own-info').textContent = t('ownInfo', { n: ownCount });
+}
+$('#btn-import').onclick = () => $('#import-file').click();
+$('#import-file').onchange = async (e) => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  let l; try { l = JSON.parse(await f.text()); } catch { l = null; }
+  if (!Array.isArray(l) || !l.some((p) => p && p.id && Number.isFinite(p.x) && Number.isFinite(p.y))) { alert(t('ownInvalid')); return; }
+  await ownDB('readwrite', (s) => s.put(l, 'pois'));
+  location.reload();
+};
+$('#btn-import-del').onclick = async () => {
+  if (!confirm(t('ownDelConfirm'))) return;
+  await ownDB('readwrite', (s) => s.delete('pois'));
+  location.reload();
+};
+
 // ---------- Daten laden ----------
-Promise.all(DATA_FILES.map((f) => fetch(f).then((r) => (r.ok ? r.json() : [])).catch(() => [])))
+Promise.all([...DATA_FILES.map((f) => fetch(f).then((r) => (r.ok ? r.json() : [])).catch(() => [])),
+  ownGet().then((l) => { ownCount = l.length; showOwn(); return l; })])
   .then((lists) => {
     pois = lists.flat().filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
     for (const p of pois) {

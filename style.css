@@ -129,6 +129,7 @@ button:active { transform: scale(.94); }
 .tag { padding: 3px 10px; border-radius: 10px; font-size: 12px; background: rgba(255,255,255,.07); color: var(--muted); }
 .meta { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 12px 0 0; padding: 12px; border-radius: 14px;
   background: rgba(255,255,255,.04); font-size: 13px; }
+.d-photo { display: block; width: 100%; margin-top: 10px; border-radius: 14px; }
 .meta dt { color: var(--muted); } .meta dd { margin: 0; word-break: break-word; }
 button.link { padding: 0; border: 0; background: none; color: var(--accent); font-size: inherit; text-align: left; }
 .xy-pop .leaflet-popup-content-wrapper, .xy-pop .leaflet-popup-tip { background: var(--glass-strong); color: var(--text);

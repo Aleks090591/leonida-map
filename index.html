@@ -50,6 +50,12 @@
     <p class="muted" data-i18n="syncText">Link mit deinem Fortschritt und deinen Notizen. Auf dem anderen Gerät öffnen – wird dort zusammengeführt.</p>
     <button id="btn-sync" class="ghost" data-i18n="syncBtn">Sync-Link teilen</button>
     <p class="muted" id="data-date"></p>
+    <h3 data-i18n="ownTitle">Eigene Daten</h3>
+    <p class="muted" data-i18n="ownText">JSON-Datei mit zusätzlichen Markern laden. Bleibt nur auf diesem Gerät gespeichert.</p>
+    <button id="btn-import" class="ghost" data-i18n="ownBtn">Eigene Daten importieren</button>
+    <input type="file" id="import-file" accept=".json,application/json" hidden>
+    <p class="muted" id="own-info" hidden></p>
+    <button id="btn-import-del" class="ghost" data-i18n="ownDel" hidden>Eigene Daten löschen</button>
     <h3 data-i18n="language">Sprache</h3>
     <div id="lang"><button data-lang="de">Deutsch</button><button data-lang="en">English</button></div>
   </section>
