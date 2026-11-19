@@ -12,7 +12,6 @@
   <link rel="apple-touch-icon" href="icons/icon-180.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="vendor/leaflet.css">
-  <link rel="stylesheet" href="vendor/MarkerCluster.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -45,6 +44,8 @@
     <h2 data-i18n="progress">Fortschritt</h2>
     <div id="total"></div>
     <div id="chips"></div>
+    <h3 data-i18n="srcTitle">Angezeigte Daten</h3>
+    <div id="sources"></div>
     <label class="row"><input type="checkbox" id="hide-found"> <span data-i18n="hideFound">Gefundene ausblenden</span></label>
     <h3 data-i18n="syncTitle">Geräte synchronisieren</h3>
     <p class="muted" data-i18n="syncText">Link mit deinem Fortschritt und deinen Notizen. Auf dem anderen Gerät öffnen – wird dort zusammengeführt.</p>
@@ -89,7 +90,6 @@
   </section>
 
   <script src="vendor/leaflet.js"></script>
-  <script src="vendor/leaflet.markercluster.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

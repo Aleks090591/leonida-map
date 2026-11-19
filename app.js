@@ -7,6 +7,7 @@ const CATEGORIES = {
   weapon: { color: '#ff5a4f' }, vehicle: { color: '#4fff9a' }, activity: { color: '#4ffff0' }, shop: { color: '#ffe14f' },
 };
 const DATA_FILES = ['data/landmarks.json', 'data/gtadb.json', 'data/pois.json'];
+const DATA_SRC = ['base', 'gtadb', 'base', 'own']; // Datenquelle je Liste (DATA_FILES + eigene Daten)
 
 const crs = L.extend({}, L.CRS.Simple, { transformation: new L.Transformation(1 / 32, 512, -1 / 32, 512) });
 const tileBounds = L.latLngBounds([-8192, -16384], [12288, 4096]);
@@ -48,6 +49,7 @@ const I18N = {
     syncTitle: 'Geräte synchronisieren', syncText: 'Link mit deinem Fortschritt und deinen Notizen. Auf dem anderen Gerät öffnen – wird dort zusammengeführt.',
     syncBtn: 'Sync-Link teilen', syncCopied: 'Link kopiert ✓', syncInvalid: 'Sync-Link ist ungültig.',
     syncNothing: 'Sync-Link: nichts Neues – alles schon vorhanden.',
+    srcTitle: 'Angezeigte Daten', 'src.base': 'Basis-Orte (gta6map)', 'src.gtadb': 'gtadb.org', 'src.own': 'Eigene Daten',
     ownTitle: 'Eigene Daten', ownText: 'JSON-Datei mit zusätzlichen Markern laden. Bleibt nur auf diesem Gerät gespeichert.',
     ownBtn: 'Eigene Daten importieren', ownDel: 'Eigene Daten löschen', ownInfo: '{n} eigene Marker geladen',
     ownInvalid: 'Datei ist keine gültige Marker-Liste.', ownDelConfirm: 'Eigene Daten von diesem Gerät löschen?',
@@ -95,6 +97,7 @@ const I18N = {
     syncTitle: 'Sync devices', syncText: 'A link with your progress and notes. Open it on the other device – it gets merged there.',
     syncBtn: 'Share sync link', syncCopied: 'Link copied ✓', syncInvalid: 'Sync link is invalid.',
     syncNothing: 'Sync link: nothing new – everything is already here.',
+    srcTitle: 'Shown data', 'src.base': 'Base places (gta6map)', 'src.gtadb': 'gtadb.org', 'src.own': 'Own data',
     ownTitle: 'Own data', ownText: 'Load a JSON file with additional markers. Stays stored on this device only.',
     ownBtn: 'Import own data', ownDel: 'Delete own data', ownInfo: '{n} own markers loaded',
     ownInvalid: 'File is not a valid marker list.', ownDelConfirm: 'Delete own data from this device?',
@@ -138,39 +141,75 @@ let hideFound = store.get('hideFound', false);
 let pois = [];
 let selected = null;
 const markers = new Map();
-const cluster = L.markerClusterGroup({
-  chunkedLoading: true, maxClusterRadius: 70, showCoverageOnHover: false, spiderfyDistanceMultiplier: 1.6,
-  iconCreateFunction(cl) { // Ring zeigt den Kategorie-Mix des Clusters
-    const ms = cl.getAllChildMarkers(), n = ms.length, cnt = {};
-    ms.forEach((m) => (cnt[m.options.cat] = (cnt[m.options.cat] || 0) + 1));
-    let a = 0;
-    const seg = Object.entries(cnt).map(([k, v]) => { const s = a; a += (v / n) * 360; return `${CATEGORIES[k]?.color || '#fff'} ${s}deg ${a}deg`; });
-    const size = n < 10 ? 36 : n < 100 ? 42 : n < 1000 ? 50 : 58;
-    return L.divIcon({ className: 'cl', iconSize: [size, size],
-      html: `<div style="background:conic-gradient(${seg.join(',')})"><span>${n}</span></div>` });
-  },
-});
-map.addLayer(cluster);
+const hiddenSrc = new Set(store.get('hiddenSrc', []));
+const layer = L.layerGroup().addTo(map); // keine Gruppierung: jeder Marker einzeln
 
 const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+// Eigene Symbole (24er-Raster, Linien): Standard je Kategorie, genauer je Typ über die Tags.
+const GLYPHS = {
+  landmark: 'M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z',
+  mission: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8',
+  side: 'M12 4v10M12 19v.5', secret: 'M9 9a3 3 0 1 1 4 2.8c-.7.3-1 1-1 1.7v1M12 19v.5',
+  weapon: 'M12 3v5M12 16v5M3 12h5M16 12h5M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8',
+  vehicle: 'M5 16v-4l2-5h10l2 5v4zM5 16v2M19 16v2M5 12h14', activity: 'M13 3 5 14h6l-1 7 8-11h-6z',
+  shop: 'M6 8h12l-1 12H7zM9 8V6a3 3 0 0 1 6 0v2',
+  money: 'M16 7c-1-1.5-6-2-6.8.6C8 11 16 10 16 14c0 3-6 3-8 1M12 4v16',
+  fuel: 'M5 20V5h8v15M5 11h8M13 9l4 3v6a1.5 1.5 0 0 0 3 0V9l-3-3',
+  bus: 'M6 4h12v13H6zM6 11h12M8 17v3M16 17v3', drink: 'M6 4h12l-6 8zM12 12v8M8 20h8',
+  food: 'M6 9h10v6a4 4 0 0 1-4 4h-2a4 4 0 0 1-4-4zM16 11h2a2 2 0 0 1 0 4h-2M9 3v3M13 3v3',
+  jump: 'M4 18l7-7 3 3 6-8M14 6h6v6', repair: 'M14 4a5 5 0 0 0-4.5 7L4 16.5V20h3.5L13 14.5A5 5 0 0 0 20 10l-3 1-2-2 1-3a5 5 0 0 0-2-2z',
+  lock: 'M6 11h12v9H6zM9 11V8a3 3 0 0 1 6 0v3', ball: 'M12 3a9 9 0 1 0 0 18a9 9 0 1 0 0-18M3 12h18M12 3v18',
+  fish: 'M3 12c4-6 10-6 14 0-4 6-10 6-14 0zM17 12l4-3v6z', flag: 'M5 21V4h12l-2 4 2 4H5', bridge: 'M3 9h18M5 9v10M19 9v10M5 16a7 6 0 0 1 14 0',
+  shirt: 'M8 4 4 7l2 3 2-1v11h8V9l2 1 2-3-4-3c-1 1.5-5 1.5-8 0z',
+};
+const GLYPH_RULES = [
+  [/\batm\b|bank|payday|pawn|jewel/, 'money'], [/gas|charger|fuel/, 'fuel'],
+  [/bus|train|metro|ferry|airport|transportation/, 'bus'], [/\bbar\b|club|liquor/, 'drink'],
+  [/food|cafe|restaurant|takeout/, 'food'], [/stunt|base jump|knife flight/, 'jump'],
+  [/mod ?shop|spray|car wash|garage/, 'repair'], [/\bsafe\b/, 'lock'], [/basketball|tennis|golf|pool table/, 'ball'],
+  [/fishing/, 'fish'], [/rac(e|ing)|speedway/, 'flag'], [/bridge/, 'bridge'],
+  [/cloth|wear|footwear|shoes|formal|casual|thrift|hair|tattoo/, 'shirt'],
+];
+function glyph(p) {
+  if (p.g) return p.g;
+  const s = (p.tags || []).join(' ').toLowerCase();
+  return (p.g = (GLYPH_RULES.find(([re]) => re.test(s)) || [, GLYPHS[p.cat] ? p.cat : 'landmark'])[1]);
+}
+const svg = (g) => `<svg viewBox="0 0 24 24"><path d="${GLYPHS[g]}"/></svg>`;
+
 function icon(p) {
   const c = CATEGORIES[p.cat]?.color || '#fff';
-  return L.divIcon({ className: '', iconSize: [20, 20],
-    html: `<div class="pin ${esc(p.certainty)}${found.has(p.id) ? ' found' : ''}${p.id === selected ? ' sel' : ''}" style="--c:${c}"></div>` });
+  return L.divIcon({ className: '', iconSize: [22, 22],
+    html: `<div class="pin ${esc(p.certainty)}${found.has(p.id) ? ' found' : ''}${p.id === selected ? ' sel' : ''}" style="--c:${c}">${svg(glyph(p))}</div>` });
 }
 
+let shown = [];
 function render() {
-  cluster.clearLayers();
-  const visible = pois.filter((p) => !hidden.has(p.cat) && !(hideFound && found.has(p.id)));
-  cluster.addLayers(visible.map((p) => markers.get(p.id)));
+  shown = active().filter((p) => !hidden.has(p.cat) && !(hideFound && found.has(p.id)));
+  layer.clearLayers(); draw();
   renderChips();
 }
 
+const active = () => pois.filter((p) => !hiddenSrc.has(p.src));
+
+// Nur Marker im sichtbaren Ausschnitt (+Rand) ins DOM – ohne Gruppierung sonst zu langsam.
+function draw() {
+  const b = map.getBounds().pad(0.5);
+  for (const p of shown) {
+    const m = markers.get(p.id), inView = b.contains([p.y, p.x]);
+    if (inView && !layer.hasLayer(m)) layer.addLayer(m); else if (!inView && layer.hasLayer(m)) layer.removeLayer(m);
+  }
+}
+map.on('moveend', draw);
+
 function renderChips() {
+  const srcs = [...new Set(DATA_SRC)].map((k) => ({ k, n: pois.filter((p) => p.src === k).length })).filter((x) => x.n);
+  $('#sources').innerHTML = srcs.map(({ k, n }) => `<label class="row"><input type="checkbox" data-src="${k}"${hiddenSrc.has(k) ? '' : ' checked'}>
+      <span>${t('src.' + k)} <small class="muted">${n}</small></span></label>`).join('');
   const stats = Object.entries(CATEGORIES).map(([k, c]) => {
-    const all = pois.filter((p) => p.cat === k);
+    const all = active().filter((p) => p.cat === k);
     return { k, c, n: all.length, f: all.filter((p) => found.has(p.id)).length, off: hidden.has(k) ? ' off' : '' };
   });
   const F = stats.reduce((s, x) => s + x.f, 0), N = stats.reduce((s, x) => s + x.n, 0), P = N ? Math.round((F / N) * 100) : 0;
@@ -180,7 +219,7 @@ function renderChips() {
   // Schnellfilter: Kategorien mit Einträgen zuerst
   $('#quick').innerHTML = [...stats].sort((a, b) => (b.n > 0) - (a.n > 0)).map(({ k, c, n, off }) =>
     `<button class="qchip${off}${n ? '' : ' empty'}" data-cat="${k}" style="--c:${c.color}"><i></i>${t('cat.' + k)}<small>${n}</small></button>`).join('');
-  $('#btn-filter').classList.toggle('on', hidden.size > 0 || hideFound);
+  $('#btn-filter').classList.toggle('on', hidden.size > 0 || hideFound || pois.some((p) => hiddenSrc.has(p.src)));
 }
 
 // ---------- Sheets ----------
@@ -208,7 +247,7 @@ function showDetail(p) {
   const info = (k, v) => (k === 'photos' ? v.map((x) => t('photo.' + x)).join(', ') : k === 'edited' ? fmtDate(v) : v);
   const isFound = found.has(p.id), cmp = counterpart(p);
   $('#detail-body').innerHTML = `
-    <div class="d-head" style="--c:${c.color}"><div class="d-icon"><i></i></div>
+    <div class="d-head" style="--c:${c.color}"><div class="d-icon">${svg(glyph(p))}</div>
       <div><h2>${esc(pname(p))}</h2><small>${esc(t('cat.' + p.cat))}${p.area ? ' · ' + esc(p.area) : ''}</small></div></div>
     <div class="tags"><span class="badge ${esc(p.certainty)}">${esc(t('cert.' + p.certainty))}</span>
       ${(p.tags || []).map((s) => `<span class="tag">${esc(tag(s))}</span>`).join('')}</div>
@@ -245,9 +284,8 @@ function toggleFound(p) {
 }
 
 function focus(p) {
-  const m = markers.get(p.id);
   map.flyTo([p.y, p.x], Math.max(map.getZoom(), 5), { duration: 0.6 });
-  if (!cluster.hasLayer(m)) { hidden.delete(p.cat); render(); }
+  if (!shown.includes(p)) { hidden.delete(p.cat); hiddenSrc.delete(p.src); store.set('hiddenSrc', [...hiddenSrc]); render(); }
   showDetail(p);
 }
 
@@ -258,6 +296,11 @@ $('#chips').onclick = $('#quick').onclick = (e) => {
   const k = e.target.closest('[data-cat]')?.dataset.cat; if (!k) return;
   hidden.has(k) ? hidden.delete(k) : hidden.add(k);
   store.set('hiddenCats', [...hidden]); render();
+};
+$('#sources').onchange = (e) => {
+  const k = e.target.dataset.src; if (!k) return;
+  e.target.checked ? hiddenSrc.delete(k) : hiddenSrc.add(k);
+  store.set('hiddenSrc', [...hiddenSrc]); render();
 };
 $('#hide-found').checked = hideFound;
 $('#hide-found').onchange = (e) => { hideFound = e.target.checked; store.set('hideFound', hideFound); render(); };
@@ -398,7 +441,7 @@ $('#search').oninput = (e) => {
   const q = norm(e.target.value.trim());
   const ul = $('#results');
   if (q.length < 2) { ul.hidden = true; return; }
-  const hits = pois.filter((p) => norm(`${pname(p)} ${p.area} ${p.model} ${p.desc} ${(p.tags || []).map((s) => s + ' ' + tag(s)).join(' ')}`).includes(q)).slice(0, 30);
+  const hits = active().filter((p) => norm(`${pname(p)} ${p.area} ${p.model} ${p.desc} ${(p.tags || []).map((s) => s + ' ' + tag(s)).join(' ')}`).includes(q)).slice(0, 30);
   ul.innerHTML = hits.map((p) => `<li data-id="${esc(p.id)}" style="--c:${CATEGORIES[p.cat]?.color || '#fff'}"><i></i><div>${esc(pname(p))}<small>${esc(t('cat.' + p.cat))}${p.area ? ' · ' + esc(p.area) : ''}</small></div></li>`).join('')
     || `<li class="muted">${t('noHits')}</li>`;
   ul.hidden = false;
@@ -441,6 +484,7 @@ $('#btn-import-del').onclick = async () => {
 Promise.all([...DATA_FILES.map((f) => fetch(f).then((r) => (r.ok ? r.json() : [])).catch(() => [])),
   ownGet().then((l) => { ownCount = l.length; showOwn(); return l; })])
   .then((lists) => {
+    lists.forEach((l, i) => l.forEach((p) => (p.src = DATA_SRC[i])));
     pois = lists.flat().filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
     for (const p of pois) {
       const m = L.marker([p.y, p.x], { icon: icon(p), title: pname(p), cat: p.cat });
