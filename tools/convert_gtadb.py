@@ -2,6 +2,11 @@
 import json, re, sys, datetime
 src, out = sys.argv[1], sys.argv[2]
 d = json.load(open(src, encoding='utf-8'))
+# gtadb-Typen -> App-Kategorie (erste passende gewinnt), sonst „Orte“
+CATS = [('weapon', {'guns'}),
+        ('shop', {'retail', 'supermarket', 'restaurant', 'food', 'clothes', 'hair', 'gas', 'electronics', 'shoes', 'bar', 'vendor'}),
+        ('activity', {'leisure', 'events', 'tennis', 'racetrack', 'nightclub', 'stripclub'}),
+        ('vehicle', {'modshop', 'transportation', 'airport', 'marina', 'train', 'bus', 'metro'})]
 res = []
 for lid, v in d.items():
     ig_name, ig_xy, ig_photo, rl_addr, rl_ll, rl_photo, types = v[:7]
@@ -13,7 +18,7 @@ for lid, v in d.items():
     name = parts[0] if parts[0] and parts[0] != '?' else f'{rl_name} (Vorbild)'
     tags = [t.lstrip('#') for t in types if not t.startswith('//') and not re.fullmatch(r'l\d+', t)]
     res.append({
-        'id': f'gtadb-{lid}', 'cat': 'landmark', 'name': name,
+        'id': f'gtadb-{lid}', 'cat': next((c for c, ks in CATS if ks & set(tags)), 'landmark'), 'name': name,
         'area': ', '.join(p for p in parts[1:] if p and p != '?'),
         'x': round(ig_xy[0], 1), 'y': round(ig_xy[1], 1),
         'tags': tags, 'desc': f'Reales Vorbild: {rl_addr}',

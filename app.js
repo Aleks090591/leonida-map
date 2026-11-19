@@ -288,7 +288,7 @@ $('#search').oninput = (e) => {
   const q = norm(e.target.value.trim());
   const ul = $('#results');
   if (q.length < 2) { ul.hidden = true; return; }
-  const hits = pois.filter((p) => norm(`${p.name} ${p.area} ${p.desc}`).includes(q)).slice(0, 30);
+  const hits = pois.filter((p) => norm(`${p.name} ${p.area} ${p.desc} ${(p.tags || []).join(' ')}`).includes(q)).slice(0, 30);
   ul.innerHTML = hits.map((p) => `<li data-id="${esc(p.id)}" style="--c:${CATEGORIES[p.cat]?.color || '#fff'}"><i></i><div>${esc(p.name)}<small>${esc(CATEGORIES[p.cat]?.label)}${p.area ? ' · ' + esc(p.area) : ''}</small></div></li>`).join('')
     || '<li class="muted">Keine Treffer</li>';
   ul.hidden = false;
