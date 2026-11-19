@@ -30,12 +30,12 @@ button:active { transform: scale(.94); }
 .leaflet-control-attribution a { color: rgba(255,255,255,.3); text-decoration: none; }
 
 /* Pins */
-.pin { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.9);
+.pin { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.9);
   background: var(--c); display: grid; place-items: center;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 35%, transparent), 0 2px 8px rgba(0,0,0,.6);
   transition: transform .2s var(--ease); }
-.pin svg, .d-icon svg { width: 14px; height: 14px; fill: none; stroke: #14101c; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
-.d-icon svg { width: 26px; height: 26px; stroke: var(--c); stroke-width: 2.2; }
+.pin svg, .d-icon svg { width: 18px; height: 18px; fill: #14101c; }
+.d-icon svg { width: 28px; height: 28px; fill: var(--c); }
 .pin.speculation { opacity: .6; border-style: dashed; }
 .pin.found { filter: grayscale(1); opacity: .45; }
 .pin.sel { transform: scale(1.35); }
