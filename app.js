@@ -17,7 +17,7 @@ const map = L.map('map', {
 });
 // Kartenstile: „In-Game“ (yanis, HD-Universe-Look), „Atlas“ (dupzor, farbiges Terrain), „Day“ (gtadb, offizielle Karte)
 const STYLES = { ingame: 'tiles/yanis', atlas: 'tiles/base', day: 'tiles/day' };
-const NATIVE = { ingame: 5, atlas: 6, day: 6 }; // höchste vorhandene Kachel-Zoomstufe je Stil
+const NATIVE = { ingame: 6, atlas: 6, day: 6 }; // höchste vorhandene Kachel-Zoomstufe je Stil
 let style = (() => { try { return JSON.parse(localStorage.getItem('mapStyle')); } catch { return null; } })();
 if (!STYLES[style]) style = 'ingame';
 const base = L.tileLayer(`${STYLES[style]}/{z}/{z},{y},{x}.jpg`, {
