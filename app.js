@@ -45,6 +45,8 @@ const I18N = {
     'cert.confirmed': 'Bestätigt', 'cert.likely': 'Wahrscheinlich', 'cert.speculation': 'Spekulation',
     search: 'Leonida durchsuchen …', 'aria.filter': 'Fortschritt & Filter', 'aria.info': 'Info', 'aria.quick': 'Kategorien',
     'aria.style': 'Kartenstil wechseln', 'aria.zin': 'Hineinzoomen', 'aria.zout': 'Herauszoomen', 'aria.home': 'Ganze Karte',
+    markers: 'Markierungen', showAll: 'Alle zeigen', hideAll: 'Alle verbergen', heatmaps: 'Heatmaps',
+    heatText: 'Zeigt, wo sich Einträge einer Kategorie häufen.',
     progress: 'Fortschritt', found: '{n} gefunden', hideFound: 'Gefundene ausblenden', language: 'Sprache',
     syncTitle: 'Geräte synchronisieren', syncText: 'Link mit deinem Fortschritt und deinen Notizen. Auf dem anderen Gerät öffnen – wird dort zusammengeführt.',
     syncBtn: 'Sync-Link teilen', syncCopied: 'Link kopiert ✓', syncInvalid: 'Sync-Link ist ungültig.',
@@ -93,6 +95,8 @@ const I18N = {
     'cert.confirmed': 'Confirmed', 'cert.likely': 'Likely', 'cert.speculation': 'Speculation',
     search: 'Search Leonida …', 'aria.filter': 'Progress & filters', 'aria.info': 'Info', 'aria.quick': 'Categories',
     'aria.style': 'Change map style', 'aria.zin': 'Zoom in', 'aria.zout': 'Zoom out', 'aria.home': 'Whole map',
+    markers: 'Markers', showAll: 'Show all', hideAll: 'Hide all', heatmaps: 'Heatmaps',
+    heatText: 'Shows where entries of a category cluster.',
     progress: 'Progress', found: '{n} found', hideFound: 'Hide found', language: 'Language',
     syncTitle: 'Sync devices', syncText: 'A link with your progress and notes. Open it on the other device – it gets merged there.',
     syncBtn: 'Share sync link', syncCopied: 'Link copied ✓', syncInvalid: 'Sync link is invalid.',
@@ -217,6 +221,33 @@ const GLYPHS = {
   tree: 'M11,21V16.74C10.53,16.91 10.03,17 9.5,17C7,17 5,15 5,12.5C5,11.23 5.5,10.09 6.36,9.27C6.13,8.73 6,8.13 6,7.5C6,5 8,3 10.5,3C12.06,3 13.44,3.8 14.25,5C14.33,5 14.41,5 14.5,5A5.5,5.5 0 0,1 20,10.5A5.5,5.5 0 0,1 14.5,16C14,16 13.5,15.93 13,15.79V21H11Z',
   sweet: 'M12,1.5A2.5,2.5 0 0,1 14.5,4A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 9.5,4A2.5,2.5 0 0,1 12,1.5M15.87,5C18,5 20,7 20,9C22.7,9 22.7,13 20,13H4C1.3,13 1.3,9 4,9C4,7 6,5 8.13,5C8.57,6.73 10.14,8 12,8C13.86,8 15.43,6.73 15.87,5M5,15H8L9,22H7L5,15M10,15H14L13,22H11L10,15M16,15H19L17,22H15L16,15Z',
   statue: 'M6,5H18A1,1 0 0,1 19,6A1,1 0 0,1 18,7H6A1,1 0 0,1 5,6A1,1 0 0,1 6,5M21,2V4H3V2H21M15,8H17V22H15V8M7,8H9V22H7V8M11,8H13V22H11V8Z',
+  office: 'M5,3V21H11V17.5H13V21H19V3H5M7,5H9V7H7V5M11,5H13V7H11V5M15,5H17V7H15V5M7,9H9V11H7V9M11,9H13V11H11V9M15,9H17V11H15V9M7,13H9V15H7V13M11,13H13V15H11V13M15,13H17V15H15V13M7,17H9V19H7V17M15,17H17V19H15V17Z',
+  parking: 'M13.2,11H10V7H13.2A2,2 0 0,1 15.2,9A2,2 0 0,1 13.2,11M13,3H6V21H10V15H13A6,6 0 0,0 19,9C19,5.68 16.31,3 13,3Z',
+  prison: 'M20.24 6.76C18.4 4.91 15.65 4.53 13.42 5.59L12.46 4.63C12.07 4.24 11.44 4.24 11.05 4.63L10.97 4.72C10.83 3.75 10 3 9 3C7.9 3 7 3.9 7 5C7 5.09 7 5.18 7.03 5.26C6.42 5.61 6 6.25 6 7C6 7.46 6.16 7.87 6.42 8.21C6.17 8.39 6 8.67 6 9V10.35C3.67 11.17 2 13.39 2 16C2 19.31 4.69 22 8 22S14 19.31 14 16C14 13.39 12.33 11.17 10 10.35V9C10 8.67 9.83 8.39 9.58 8.21C9.84 7.87 10 7.46 10 7C10 6.91 10 6.82 9.97 6.74C10.15 6.64 10.3 6.5 10.43 6.38C11.36 6.88 12 7.86 12 9V9.08C12.13 9.15 12.25 9.25 12.38 9.33C12.57 8.91 12.83 8.5 13.17 8.17C14.73 6.61 17.27 6.61 18.83 8.17C20.39 9.73 20.39 12.27 18.83 13.83C18.03 14.63 17 15 15.93 15C16 15.32 16 15.66 16 16C16 16.34 15.97 16.67 15.93 17C17.5 17 19.05 16.43 20.24 15.24C22.59 12.9 22.59 9.1 20.24 6.76M9 4C9.55 4 10 4.45 10 5C10 5.33 9.83 5.61 9.58 5.79C9.22 5.31 8.65 5 8 5C8 4.45 8.45 4 9 4M7.42 6.21C7.78 6.69 8.35 7 9 7C9 7.55 8.55 8 8 8S7 7.55 7 7C7 6.67 7.17 6.39 7.42 6.21M12 16C12 18.21 10.21 20 8 20S4 18.21 4 16C4 13.79 5.79 12 8 12S12 13.79 12 16Z',
+  lifeguard: 'M19.79,15.41C20.74,13.24 20.74,10.75 19.79,8.59L17.05,9.83C17.65,11.21 17.65,12.78 17.06,14.17L19.79,15.41M15.42,4.21C13.25,3.26 10.76,3.26 8.59,4.21L9.83,6.94C11.22,6.35 12.79,6.35 14.18,6.95L15.42,4.21M4.21,8.58C3.26,10.76 3.26,13.24 4.21,15.42L6.95,14.17C6.35,12.79 6.35,11.21 6.95,9.82L4.21,8.58M8.59,19.79C10.76,20.74 13.25,20.74 15.42,19.78L14.18,17.05C12.8,17.65 11.22,17.65 9.84,17.06L8.59,19.79M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z',
+  church: 'M18 12.22V9L13 6.5V5H15V3H13V1H11V3H9V5H11V6.5L6 9V12.22L2 14V22H10V19C10 17.9 10.9 17 12 17S14 17.9 14 19V22H22V14L18 12.22M12 13.5C11.17 13.5 10.5 12.83 10.5 12S11.17 10.5 12 10.5 13.5 11.17 13.5 12 12.83 13.5 12 13.5Z',
+  police: 'M22 4L20 2C18.85 2.64 17.4 3 16 3C14.6 3 13.14 2.63 12 2C10.86 2.63 9.4 3 8 3C6.6 3 5.15 2.64 4 2L2 4C2 4 4 6 4 8S2 14 2 16C2 20 12 22 12 22S22 20 22 16C22 14 20 10 20 8S22 4 22 4M15.05 16.45L11.97 14.59L8.9 16.45L9.72 12.95L7 10.61L10.58 10.3L11.97 7L13.37 10.29L16.95 10.6L14.23 12.94L15.05 16.45Z',
+  fire: 'M17.04,2C16.85,2 16.66,2.04 16.5,2.14L5.59,8.5H9.55L17.5,3.86C18,3.58 18.13,2.97 17.85,2.5C17.68,2.2 17.38,2 17.04,2M16,8V10H3A2,2 0 0,0 1,12H2V15H1V19H3A3,3 0 0,0 6,22A3,3 0 0,0 9,19H15A3,3 0 0,0 18,22A3,3 0 0,0 21,19H23V12.5L19.5,8H16M18,9.5H19L21.5,12.5V13.5H18V9.5M4,12H7V15H4V12M9,12H12V15H9V12M14,12H16V15H14V12M6,17.5A1.5,1.5 0 0,1 7.5,19A1.5,1.5 0 0,1 6,20.5A1.5,1.5 0 0,1 4.5,19A1.5,1.5 0 0,1 6,17.5M18,17.5A1.5,1.5 0 0,1 19.5,19A1.5,1.5 0 0,1 18,20.5A1.5,1.5 0 0,1 16.5,19A1.5,1.5 0 0,1 18,17.5Z',
+  lighthouse: 'M8,10V8H9V4H8V3L12,1L16,3V4H15V8H16V10H14.74L8.44,13.64L9,10H8M13,8V4H11V8H13M7,23L7.04,22.76L16.15,17.5L16.67,20.88L13,23H7M8.05,16.17L15.31,12L15.83,15.37L7.43,20.22L8.05,16.17Z',
+  stadium: 'M7 5L3 7V3L7 5M18 3V7L22 5L18 3M11 2V6L15 4L11 2M5 10C6.4 10.5 8.8 11 12 11S17.6 10.5 19 10C19 9.8 16.2 9 12 9S5 9.9 5 10M15 17H9V21.9C4.9 21.5 2 20.4 2 19V10C2 8.3 6.5 7 12 7S22 8.3 22 10V19C22 20.3 19.1 21.5 15 21.9V17Z',
+  school: 'M12,3L1,9L12,15L21,10.09V17H23V9M5,13.18V17.18L12,21L19,17.18V13.18L12,17L5,13.18Z',
+  hospital: 'M18,14H14V18H10V14H6V10H10V6H14V10H18M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z',
+  port: 'M20,20C18.61,20 17.22,19.53 16,18.67C13.56,20.38 10.44,20.38 8,18.67C6.78,19.53 5.39,20 4,20H2V22H4C5.37,22 6.74,21.65 8,21C10.5,22.3 13.5,22.3 16,21C17.26,21.65 18.62,22 20,22H22V20H20M20,4V3A1,1 0 0,0 19,2H9V1H6V2H5V4H6V13H5V11H3V13H2V15H3V19H4C4.33,19 4.67,18.97 5,18.92V15H10V18.65C10.65,18.85 11.33,18.95 12,18.95V18.92L12,15H13V13H12V11H10V13H9V4H17V8.62C16.53,8.79 16.19,9.23 16.19,9.76C16.19,10.2 16.43,10.6 16.8,10.82V12H17.42C17.76,12 18.03,12.28 18.03,12.62C18.03,12.96 17.76,13.24 17.42,13.24C17.2,13.24 17,13.12 16.88,12.93C16.71,12.64 16.34,12.54 16.05,12.71C15.75,12.87 15.65,13.25 15.82,13.55C16.15,14.11 16.76,14.47 17.42,14.47C18.43,14.47 19.26,13.64 19.26,12.62C19.26,11.84 18.76,11.14 18.03,10.88V10.82C18.41,10.6 18.65,10.2 18.65,9.76C18.65,9.3 18.38,8.91 18,8.7V4H20M8,11.66L7,12.66V11.24L8,10.24V11.66M8,8.71L7,9.71V8.29L8,7.29V8.71M7,6.71V5.29L8,4.29V5.71L7,6.71Z',
+  power: 'M8.28,5.45L6.5,4.55L7.76,2H16.23L17.5,4.55L15.72,5.44L15,4H9L8.28,5.45M18.62,8H14.09L13.3,5H10.7L9.91,8H5.38L4.1,10.55L5.89,11.44L6.62,10H17.38L18.1,11.45L19.89,10.56L18.62,8M17.77,22H15.7L15.46,21.1L12,15.9L8.53,21.1L8.3,22H6.23L9.12,11H11.19L10.83,12.35L12,14.1L13.16,12.35L12.81,11H14.88L17.77,22M11.4,15L10.5,13.65L9.32,18.13L11.4,15M14.68,18.12L13.5,13.64L12.6,15L14.68,18.12Z',
+  radio: 'M12,10A2,2 0 0,1 14,12C14,12.5 13.82,12.94 13.53,13.29L16.7,22H14.57L12,14.93L9.43,22H7.3L10.47,13.29C10.18,12.94 10,12.5 10,12A2,2 0 0,1 12,10M12,8A4,4 0 0,0 8,12C8,12.5 8.1,13 8.28,13.46L7.4,15.86C6.53,14.81 6,13.47 6,12A6,6 0 0,1 12,6A6,6 0 0,1 18,12C18,13.47 17.47,14.81 16.6,15.86L15.72,13.46C15.9,13 16,12.5 16,12A4,4 0 0,0 12,8M12,4A8,8 0 0,0 4,12C4,14.36 5,16.5 6.64,17.94L5.92,19.94C3.54,18.11 2,15.23 2,12A10,10 0 0,1 12,2A10,10 0 0,1 22,12C22,15.23 20.46,18.11 18.08,19.94L17.36,17.94C19,16.5 20,14.36 20,12A8,8 0 0,0 12,4Z',
+  beach: 'M15,18.54C17.13,18.21 19.5,18 22,18V22H5C5,21.35 8.2,19.86 13,18.9V12.4C12.16,12.65 11.45,13.21 11,13.95C10.39,12.93 9.27,12.25 8,12.25C6.73,12.25 5.61,12.93 5,13.95C5.03,10.37 8.5,7.43 13,7.04V7A1,1 0 0,1 14,6A1,1 0 0,1 15,7V7.04C19.5,7.43 22.96,10.37 23,13.95C22.39,12.93 21.27,12.25 20,12.25C18.73,12.25 17.61,12.93 17,13.95C16.55,13.21 15.84,12.65 15,12.39V18.54M7,2A5,5 0 0,1 2,7V2H7Z',
+  anchor: 'M12 2A3 3 0 0 0 9 5A3 3 0 0 0 11 7.83V9H8V11H11V19.92C10.26 19.79 9.5 19.58 8.79 19.27C8.05 18.95 7.4 18.56 6.82 18.09C6.24 17.62 5.78 17.11 5.44 16.55L7 15L3 12V15C3 15.97 3.27 16.88 3.82 17.72C4.37 18.56 5.09 19.31 6 19.95C6.87 20.59 7.84 21.09 8.88 21.45C9.93 21.81 10.97 22 12 22C13.03 22 14.07 21.8 15.12 21.44C16.16 21.08 17.13 20.58 18 19.95C18.92 19.31 19.63 18.57 20.18 17.72C20.73 16.88 21 15.97 21 15V12L17 15L18.56 16.55C18.22 17.11 17.76 17.62 17.18 18.09C16.6 18.56 15.95 18.95 15.21 19.27C14.5 19.58 13.74 19.79 13 19.92V11H16V9H13V7.82A3 3 0 0 0 15 5A3 3 0 0 0 12 2M12 4A1 1 0 0 1 13 5A1 1 0 0 1 12 6A1 1 0 0 1 11 5A1 1 0 0 1 12 4Z',
+  aquarium: 'M19.11,5H21V3H3V5H4.89C3.11,6.8 2,9.27 2,12C2,15.97 4.31,19.39 7.66,21H16.34C19.69,19.39 22,15.97 22,12C22,9.27 20.89,6.8 19.11,5M13.25,17C12.09,17 11.06,16.64 10.33,16.17C9.67,17 8.33,17 7,17C8.1,17 8.5,15.88 8.5,14.5C8.5,13.12 8.1,12 7,12C8.33,12 9.67,12 10.37,12.91C11.06,12.36 12.09,12 13.25,12C15.32,12 17,13.12 17,14.5C17,15.88 15.32,17 13.25,17M16,7C13.56,8.71 10.44,8.71 8,7C7.06,7.66 6,8.09 4.95,8.25C5.31,7.58 5.77,6.96 6.32,6.41L7.7,5H16.3L17.68,6.41C18.23,6.96 18.69,7.58 19.05,8.25C18,8.09 16.94,7.66 16,7Z',
+  gavel: 'M2.3,20.28L11.9,10.68L10.5,9.26L9.78,9.97C9.39,10.36 8.76,10.36 8.37,9.97L7.66,9.26C7.27,8.87 7.27,8.24 7.66,7.85L13.32,2.19C13.71,1.8 14.34,1.8 14.73,2.19L15.44,2.9C15.83,3.29 15.83,3.92 15.44,4.31L14.73,5L16.15,6.43C16.54,6.04 17.17,6.04 17.56,6.43C17.95,6.82 17.95,7.46 17.56,7.85L18.97,9.26L19.68,8.55C20.07,8.16 20.71,8.16 21.1,8.55L21.8,9.26C22.19,9.65 22.19,10.29 21.8,10.68L16.15,16.33C15.76,16.72 15.12,16.72 14.73,16.33L14.03,15.63C13.63,15.24 13.63,14.6 14.03,14.21L14.73,13.5L13.32,12.09L3.71,21.7C3.32,22.09 2.69,22.09 2.3,21.7C1.91,21.31 1.91,20.67 2.3,20.28M20,19A2,2 0 0,1 22,21V22H12V21A2,2 0 0,1 14,19H20Z',
+  ferriswheel: 'M12,19C12.86,19 13.59,19.54 13.87,20.29C14.42,20.17 14.95,20 15.46,19.77L13.7,15.62C13.18,15.87 12.61,16 12,16C11.39,16 10.82,15.87 10.3,15.62L8.54,19.77C9.05,20 9.58,20.17 10.13,20.29C10.41,19.54 11.14,19 12,19M18.25,17.76C18,17.42 17.81,17 17.81,16.5C17.81,15.41 18.71,14.5 19.81,14.5L20.12,14.53C20.37,13.73 20.5,12.88 20.5,12C20.5,11.12 20.37,10.27 20.12,9.5H19.81C18.7,9.5 17.81,8.61 17.81,7.5C17.81,7 17.97,6.59 18.25,6.24C17.1,5 15.59,4.09 13.87,3.71C13.59,4.46 12.86,5 12,5C11.14,5 10.41,4.46 10.13,3.71C8.41,4.09 6.9,5 5.75,6.24C6.03,6.59 6.2,7.03 6.2,7.5C6.2,8.61 5.3,9.5 4.2,9.5H3.88C3.63,10.28 3.5,11.12 3.5,12C3.5,12.89 3.64,13.74 3.89,14.55L4.2,14.5C5.31,14.5 6.2,15.42 6.2,16.5C6.2,17 6.04,17.43 5.76,17.77C6.08,18.12 6.44,18.44 6.81,18.73L8.71,14.27C8.26,13.62 8,12.84 8,12A4,4 0 0,1 12,8A4,4 0 0,1 16,12C16,12.84 15.74,13.62 15.29,14.27L17.19,18.73C17.57,18.44 17.92,18.11 18.25,17.76M12,23C11,23 10.16,22.26 10,21.29C9.37,21.16 8.75,20.95 8.15,20.69L7.17,23H5L6.41,19.68C5.88,19.3 5.39,18.86 4.96,18.37C4.72,18.47 4.47,18.5 4.2,18.5A2,2 0 0,1 2.2,16.5C2.2,15.88 2.5,15.32 2.97,14.95C2.66,14 2.5,13.03 2.5,12C2.5,11 2.66,10 2.96,9.08C2.5,8.71 2.2,8.15 2.2,7.5C2.2,6.41 3.09,5.5 4.2,5.5C4.46,5.5 4.71,5.56 4.93,5.65C6.25,4.18 8,3.13 10,2.71C10.16,1.74 11,1 12,1C13,1 13.84,1.74 14,2.71C16,3.13 17.74,4.18 19.06,5.64C19.29,5.55 19.54,5.5 19.81,5.5A2,2 0 0,1 21.81,7.5C21.81,8.14 21.5,8.71 21.04,9.07C21.34,10 21.5,11 21.5,12C21.5,13 21.34,14 21.04,14.93C21.5,15.3 21.81,15.87 21.81,16.5C21.81,17.62 20.92,18.5 19.81,18.5C19.54,18.5 19.29,18.46 19.05,18.36C18.61,18.85 18.12,19.29 17.59,19.68L19,23H16.83L15.85,20.69C15.25,20.95 14.63,21.16 14,21.29C13.84,22.26 13,23 12,23Z',
+  tunnel: 'M12 2C6.5 2 2 6.5 2 12V22H22V12C22 6.5 17.5 2 12 2M7.1 5.69C8.21 4.83 9.54 4.25 11 4.07V6.09C10.09 6.24 9.25 6.6 8.53 7.11L7.1 5.69M15.47 7.11C14.75 6.6 13.91 6.24 13 6.09V4.07C14.46 4.25 15.79 4.83 16.9 5.69L15.47 7.11M5.69 7.1L7.11 8.53C6.6 9.25 6.24 10.09 6.09 11H4.07C4.25 9.54 4.83 8.21 5.69 7.1M6 13V15.5H4V13H6M4 20V17.5H6V20H4M16.89 8.53L18.31 7.1C19.17 8.21 19.75 9.54 19.93 11H17.91C17.76 10.09 17.4 9.25 16.89 8.53M18 13H20V15.5H18V13M18 20V17.5H20V20H18Z',
+  barn: 'M12,3L3,8.2V21H9L11.9,18L15,21H21V8.2L12,3M7.9,20V14L10.9,17L7.9,20M8.9,13H14.9L11.9,16L8.9,13M15.9,20L12.9,17L15.9,14V20M15,11H8.8V9H15V11Z',
+  store: 'M5.06 3C4.63 3 4.22 3.14 3.84 3.42C3.46 3.7 3.24 4.06 3.14 4.5L2.11 8.91C1.86 10 2.06 10.92 2.69 11.73C2.81 11.85 2.93 11.97 3.04 12.07C3.63 12.64 4.28 13 5.22 13C6.16 13 6.91 12.59 7.47 12.05C8.1 12.67 8.86 13 9.8 13C10.64 13 11.44 12.63 12 12.07C12.68 12.7 13.45 13 14.3 13C15.17 13 15.91 12.67 16.54 12.05C17.11 12.62 17.86 13 18.81 13C19.76 13 20.43 12.65 21 12.06C21.09 11.97 21.18 11.87 21.28 11.77C21.94 10.95 22.14 10 21.89 8.91L20.86 4.5C20.73 4.06 20.5 3.7 20.13 3.42C19.77 3.14 19.38 3 18.94 3M18.89 4.97L19.97 9.38C20.06 9.81 19.97 10.2 19.69 10.55C19.44 10.86 19.13 11 18.75 11C18.44 11 18.17 10.9 17.95 10.66C17.73 10.43 17.61 10.16 17.58 9.84L16.97 5M5.06 5H7.03L6.42 9.84C6.3 10.63 5.91 11 5.25 11C4.84 11 4.53 10.86 4.31 10.55C4.03 10.2 3.94 9.81 4.03 9.38M9.05 5H11V9.7C11 10.05 10.89 10.35 10.64 10.62C10.39 10.88 10.08 11 9.7 11C9.36 11 9.07 10.88 8.84 10.59C8.61 10.3 8.5 10 8.5 9.66V9.5M13 5H14.95L15.5 9.5C15.58 9.92 15.5 10.27 15.21 10.57C14.95 10.87 14.61 11 14.2 11C13.89 11 13.61 10.88 13.36 10.62C13.11 10.35 13 10.05 13 9.7M3 14.03V19C3 20.11 3.89 21 5 21C9.67 21 14.33 21 19 21C20.1 21 21 20.11 21 19V14.05C20.45 14.63 19.75 14.96 19 15C18 15.03 17.25 14.74 16.54 14.05C15.94 14.65 15.14 15 14.3 15C13.4 15 12.6 14.64 12 14.07C11.43 14.64 10.65 15 9.78 15C8.87 15 8.07 14.65 7.47 14.05C6.89 14.64 6.1 15 5.23 15C4.33 15 3.66 14.65 3 14.03Z',
+  blimp: 'M11,23A2,2 0 0,1 9,21V19H15V21A2,2 0 0,1 13,23H11M12,1C12.71,1 13.39,1.09 14.05,1.26C15.22,2.83 16,5.71 16,9C16,11.28 15.62,13.37 15,16A2,2 0 0,1 13,18H11A2,2 0 0,1 9,16C8.38,13.37 8,11.28 8,9C8,5.71 8.78,2.83 9.95,1.26C10.61,1.09 11.29,1 12,1M20,8C20,11.18 18.15,15.92 15.46,17.21C16.41,15.39 17,11.83 17,9C17,6.17 16.41,3.61 15.46,1.79C18.15,3.08 20,4.82 20,8M4,8C4,4.82 5.85,3.08 8.54,1.79C7.59,3.61 7,6.17 7,9C7,11.83 7.59,15.39 8.54,17.21C5.85,15.92 4,11.18 4,8Z',
+  museum: 'M6.5,10H4.5V17H6.5V10M12.5,10H10.5V17H12.5V10M21,19H2V21H21V19M18.5,10H16.5V17H18.5V10M11.5,3.26L16.71,6H6.29L11.5,3.26M11.5,1L2,6V8H21V6L11.5,1Z',
+  park: 'M10,21V18H3L8,13H5L10,8H7L12,3L17,8H14L19,13H16L21,18H14V21H10Z',
+  building: 'M18,15H16V17H18M18,11H16V13H18M20,19H12V17H14V15H12V13H14V11H12V9H20M10,7H8V5H10M10,11H8V9H10M10,15H8V13H10M10,19H8V17H10M6,7H4V5H6M6,11H4V9H6M6,15H4V13H6M6,19H4V17H6M12,7V3H2V21H22V7H12Z',
+  construction: 'M20,6V5A1,1 0 0,0 19,4H9V3H6V4H5V6H6V15H5V13H3V15H2V17H3V21H5V17H10V21H12V19.92L12,17H13V15H12V13H10V15H9V6H17V10.62C16.53,10.79 16.19,11.23 16.19,11.76C16.19,12.2 16.43,12.6 16.8,12.82V14H17.42C17.76,14 18.03,14.28 18.03,14.62C18.03,14.96 17.76,15.24 17.42,15.24C17.2,15.24 17,15.12 16.89,14.93C16.71,14.64 16.34,14.54 16.05,14.71C15.75,14.87 15.65,15.25 15.82,15.55C16.15,16.11 16.76,16.47 17.42,16.47C18.43,16.47 19.26,15.64 19.26,14.62C19.26,13.84 18.76,13.14 18.03,12.88V12.82C18.41,12.6 18.65,12.2 18.65,11.76C18.65,11.3 18.38,10.91 18,10.7V6H20M8,13.66L7,14.66V13.24L8,12.24V13.66M8,10.71L7,11.71V10.29L8,9.29V10.71M7,8.71V7.29L8,6.29V7.71L7,8.71Z',
 };
 const GLYPH_RULES = [ // Reihenfolge zählt: Spezielles vor Allgemeinem
   [/\batm\b/, 'cash'], [/bank/, 'bank'], [/payday|pawn/, 'loan'], [/jewel/, 'jewel'],
@@ -232,18 +263,40 @@ const GLYPH_RULES = [ // Reihenfolge zählt: Spezielles vor Allgemeinem
   [/contact/, 'contact'], [/jack of hearts/, 'card'], [/magazine/, 'mag'], [/book/, 'book'], [/curiosit/, 'curio'],
   [/mural/, 'art'], [/sculpture/, 'statue'], [/nine1nine/, 'call'], [/delight/, 'sweet'],
   [/hotel/, 'hotel'], [/residential/, 'home'], [/industrial/, 'factory'], [/natural|nature/, 'tree'],
+  [/police/, 'police'], [/hospital/, 'hospital'], [/\bfire\b/, 'fire'], [/ferris ?wheel/, 'ferriswheel'], [/blimp/, 'blimp'],
+  [/agricultur/, 'barn'], [/airbase/, 'plane'], [/utilit/, 'power'], [/government|court/, 'gavel'], [/office/, 'office'],
+  [/construction/, 'construction'], [/commercial/, 'store'],
+];
+const NAME_RULES = [ // Fallback über Name/Vorbild, nur ganze Wörter
+  [/\b(police|sheriff)\b/, 'police'], [/\bfire (station|department|house)\b/, 'fire'], [/\b(prison|jail|penitentiary)\b/, 'prison'],
+  [/\b(hospital|medical|clinic)\b/, 'hospital'], [/\b(court ?house|city hall|capitol)\b/, 'gavel'], [/\blifeguard\b/, 'lifeguard'],
+  [/\blighthouse\b/, 'lighthouse'], [/\b(church|chapel|cathedral)\b/, 'church'], [/\b(stadium|arena|ballpark)\b/, 'stadium'],
+  [/\b(school|university|college|academy)\b/, 'school'], [/\b(oceanarium|seaquarium|aquarium)\b/, 'aquarium'], [/\bmuseum\b/, 'museum'],
+  [/\b(airport|airfield|air ?base)\b/, 'plane'], [/\b(train|metro|rail)\b/, 'train'], [/\b(marina|cruise|ferry)\b/, 'ferry'],
+  [/\b(port|harbou?r|container|terminal|shipyard)\b/, 'port'], [/\b(pier|dock|wharf)\b/, 'anchor'], [/\bbridge\b/, 'bridge'],
+  [/\btunnel\b/, 'tunnel'], [/\b(parking|car ?park)\b/, 'parking'], [/\bgarage\b/, 'garage'], [/\b(gas|fuel)\b/, 'fuel'],
+  [/\b(power|nuclear|substation|plant)\b/, 'power'], [/\b(radio|antenna|broadcast)\b/, 'radio'], [/\bconstruction\b/, 'construction'],
+  [/\b(hotel|motel|resort)\b/, 'hotel'], [/\b(condo|condominium|apartments?|house|villa|mansion)\b/, 'home'], [/\bbank\b/, 'bank'],
+  [/\bpawn\b/, 'loan'], [/\b(bar|pub|tavern|saloon)\b/, 'drink'], [/\b(night ?club|club)\b/, 'music'], [/\b(cafe|coffee)\b/, 'coffee'],
+  [/\b(restaurant|diner|grill|kitchen|bbq)\b/, 'food'], [/\b(mall|market|plaza|outlet|store|shop)\b/, 'store'], [/\btennis\b/, 'tennis'],
+  [/\bgolf\b/, 'golf'], [/\bbeach\b/, 'beach'], [/\b(park|garden|preserve|forest|swamp|everglades)\b/, 'park'], [/\b(farm|ranch|barn)\b/, 'barn'],
+  [/\b(office|tower|building|center|centre|headquarters)\b/, 'office'],
 ];
 function glyph(p) {
   if (p.g) return p.g;
   const s = (p.tags || []).join(' ').toLowerCase();
-  return (p.g = (GLYPH_RULES.find(([re]) => re.test(s)) || [, GLYPHS[p.cat] ? p.cat : 'landmark'])[1]);
+  const n = `${p.name || ''} ${p.model || ''}`.toLowerCase();
+  return (p.g = (GLYPH_RULES.find(([re]) => re.test(s)) || NAME_RULES.find(([re]) => re.test(n))
+    || [, GLYPHS[p.cat] ? p.cat : 'landmark'])[1]);
 }
 const svg = (g) => `<svg viewBox="0 0 24 24"><path d="${GLYPHS[g]}"/></svg>`;
+const FREE = new Set(['vehicle', 'bus', 'train', 'ferry', 'plane', 'atv', 'drone', 'blimp']); // freistehende Symbole ohne Hintergrund
 
 function icon(p) {
   const c = CATEGORIES[p.cat]?.color || '#fff';
-  return L.divIcon({ className: '', iconSize: [26, 26],
-    html: `<div class="pin ${esc(p.certainty)}${found.has(p.id) ? ' found' : ''}${p.id === selected ? ' sel' : ''}" style="--c:${c}">${svg(glyph(p))}</div>` });
+  const g = glyph(p);
+  return L.divIcon({ className: '', iconSize: [24, 24],
+    html: `<div class="pin c-${esc(p.cat)}${FREE.has(g) ? ' free' : ''} ${esc(p.certainty)}${found.has(p.id) ? ' found' : ''}${p.id === selected ? ' sel' : ''}" style="--c:${c}">${svg(g)}</div>` });
 }
 
 let shown = [];
@@ -265,6 +318,41 @@ function draw() {
 }
 map.on('moveend', draw);
 
+// ---------- Heatmap: eigene Canvas-Ebene, Dichte je Kategorie ----------
+const heatCats = new Set(store.get('heatCats', []));
+const heat = new (L.Layer.extend({
+  onAdd(m) { this._c = L.DomUtil.create('canvas', 'heat', m.getPanes().overlayPane); m.on('moveend resize', this.redraw, this);
+    m.on('zoomstart', () => (this._c.style.opacity = 0)); this.redraw(); },
+  redraw() {
+    const m = this._map, c = this._c; if (!c) return;
+    const sz = m.getSize(), pts = active().filter((p) => heatCats.has(p.cat));
+    c.width = sz.x; c.height = sz.y; L.DomUtil.setPosition(c, m.containerPointToLayerPoint([0, 0])); c.style.opacity = 1;
+    if (!pts.length) return;
+    const r = Math.max(14, Math.min(70, 300 * 2 ** (m.getZoom() - 5))), ctx = c.getContext('2d');
+    for (const p of pts) {
+      const q = m.latLngToContainerPoint([p.y, p.x]);
+      if (q.x < -r || q.y < -r || q.x > sz.x + r || q.y > sz.y + r) continue;
+      const g = ctx.createRadialGradient(q.x, q.y, 0, q.x, q.y, r);
+      g.addColorStop(0, 'rgba(0,0,0,.35)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g; ctx.fillRect(q.x - r, q.y - r, 2 * r, 2 * r);
+    }
+    const img = ctx.getImageData(0, 0, sz.x, sz.y), d = img.data;
+    for (let i = 3; i < d.length; i += 4) { // Dichte → Farbe (blau → grün → gelb → rot)
+      const a = d[i] / 255; if (!a) continue;
+      const [cr, cg, cb] = HEAT_RAMP[Math.min(255, Math.round(a * 255))];
+      d[i - 3] = cr; d[i - 2] = cg; d[i - 1] = cb; d[i] = Math.min(255, 60 + a * 255);
+    }
+    ctx.putImageData(img, 0, 0);
+  },
+}))().addTo(map);
+const HEAT_RAMP = (() => { // 256 Farbstufen aus einem Verlauf
+  const c = document.createElement('canvas'); c.width = 256; c.height = 1; const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 256, 0);
+  [[0, '#2b6cff'], [.35, '#28e0c8'], [.6, '#b6f03c'], [.8, '#ffd23c'], [1, '#ff3c2b']].forEach(([o, col]) => g.addColorStop(o, col));
+  x.fillStyle = g; x.fillRect(0, 0, 256, 1);
+  const d = x.getImageData(0, 0, 256, 1).data; return Array.from({ length: 256 }, (_, i) => [d[i * 4], d[i * 4 + 1], d[i * 4 + 2]]);
+})();
+
 function renderChips() {
   const srcs = [...new Set(DATA_SRC)].map((k) => ({ k, n: pois.filter((p) => p.src === k).length })).filter((x) => x.n);
   $('#sources').innerHTML = srcs.map(({ k, n }) => `<label class="row"><input type="checkbox" data-src="${k}"${hiddenSrc.has(k) ? '' : ' checked'}>
@@ -275,8 +363,12 @@ function renderChips() {
   });
   const F = stats.reduce((s, x) => s + x.f, 0), N = stats.reduce((s, x) => s + x.n, 0), P = N ? Math.round((F / N) * 100) : 0;
   $('#total').innerHTML = `<div>${t('found', { n: `<b>${F} / ${N}</b>` })}<span>${P} %</span></div><i style="--p:${N ? (F / N) * 100 : 0}%"></i>`;
+  const badge = (k) => `<span class="pin c-${k}${FREE.has(k) ? ' free' : ''}">${svg(k)}</span>`;
   $('#chips').innerHTML = stats.map(({ k, c, n, f, off }) => `<button class="chip${off}" data-cat="${k}" style="--c:${c.color};--p:${n ? (f / n) * 100 : 0}%">
-      <i></i>${t('cat.' + k)}<small>${t('found', { n: `${f} / ${n}` })}</small><b></b></button>`).join('');
+      ${badge(k)}<span>${t('cat.' + k)}</span><small>${f}/${n}</small><b></b></button>`).join('');
+  $('#heat-chips').innerHTML = stats.filter((x) => x.n).map(({ k, c, n }) => `<button class="chip${heatCats.has(k) ? '' : ' off'}" data-heat="${k}" style="--c:${c.color}">
+      ${badge(k)}<span>${t('cat.' + k)}</span><small>${n}</small></button>`).join('');
+  heat.redraw();
   // Schnellfilter: Kategorien mit Einträgen zuerst
   $('#quick').innerHTML = [...stats].sort((a, b) => (b.n > 0) - (a.n > 0)).map(({ k, c, n, off }) =>
     `<button class="qchip${off}${n ? '' : ' empty'}" data-cat="${k}" style="--c:${c.color}"><i></i>${t('cat.' + k)}<small>${n}</small></button>`).join('');
@@ -357,6 +449,15 @@ $('#chips').onclick = $('#quick').onclick = (e) => {
   const k = e.target.closest('[data-cat]')?.dataset.cat; if (!k) return;
   hidden.has(k) ? hidden.delete(k) : hidden.add(k);
   store.set('hiddenCats', [...hidden]); render();
+};
+document.querySelectorAll('[data-all]').forEach((b) => (b.onclick = () => {
+  hidden.clear(); if (b.dataset.all === 'hide') Object.keys(CATEGORIES).forEach((k) => hidden.add(k));
+  store.set('hiddenCats', [...hidden]); render();
+}));
+$('#heat-chips').onclick = (e) => {
+  const k = e.target.closest('[data-heat]')?.dataset.heat; if (!k) return;
+  heatCats.has(k) ? heatCats.delete(k) : heatCats.add(k);
+  store.set('heatCats', [...heatCats]); renderChips();
 };
 $('#sources').onchange = (e) => {
   const k = e.target.dataset.src; if (!k) return;
