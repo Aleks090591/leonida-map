@@ -45,7 +45,7 @@ const I18N = {
     'cert.confirmed': 'Bestätigt', 'cert.likely': 'Wahrscheinlich', 'cert.speculation': 'Spekulation',
     search: 'Leonida durchsuchen …', 'aria.filter': 'Fortschritt & Filter', 'aria.info': 'Info', 'aria.quick': 'Kategorien',
     'aria.style': 'Kartenstil wechseln', 'aria.zin': 'Hineinzoomen', 'aria.zout': 'Herauszoomen', 'aria.home': 'Ganze Karte',
-    markers: 'Markierungen', showAll: 'Alle zeigen', hideAll: 'Alle verbergen', show: 'Anzeigen', hide: 'Ausblenden', complete: 'Erledigt', incomplete: 'Offen', heatmaps: 'Heatmaps',
+    markers: 'Markierungen', showAll: 'Alle zeigen', hideAll: 'Alle verbergen', show: 'Anzeigen', hide: 'Ausblenden', complete: 'Erledigt', incomplete: 'Offen', allMarkers: 'Alle Marker', heatmaps: 'Heatmaps',
     heatText: 'Zeigt, wo sich Einträge einer Kategorie häufen.',
     progress: 'Fortschritt', found: '{n} gefunden', hideFound: 'Gefundene ausblenden', language: 'Sprache',
     syncTitle: 'Geräte synchronisieren', syncText: 'Link mit deinem Fortschritt und deinen Notizen. Auf dem anderen Gerät öffnen – wird dort zusammengeführt.',
@@ -95,7 +95,7 @@ const I18N = {
     'cert.confirmed': 'Confirmed', 'cert.likely': 'Likely', 'cert.speculation': 'Speculation',
     search: 'Search Leonida …', 'aria.filter': 'Progress & filters', 'aria.info': 'Info', 'aria.quick': 'Categories',
     'aria.style': 'Change map style', 'aria.zin': 'Zoom in', 'aria.zout': 'Zoom out', 'aria.home': 'Whole map',
-    markers: 'Markers', showAll: 'Show all', hideAll: 'Hide all', show: 'Show', hide: 'Hide', complete: 'Complete', incomplete: 'Incomplete', heatmaps: 'Heatmaps',
+    markers: 'Markers', showAll: 'Show all', hideAll: 'Hide all', show: 'Show', hide: 'Hide', complete: 'Complete', incomplete: 'Incomplete', allMarkers: 'All markers', heatmaps: 'Heatmaps',
     heatText: 'Shows where entries of a category cluster.',
     progress: 'Progress', found: '{n} found', hideFound: 'Hide found', language: 'Language',
     syncTitle: 'Sync devices', syncText: 'A link with your progress and notes. Open it on the other device – it gets merged there.',
@@ -364,6 +364,11 @@ map.on('moveend', draw);
 
 // ---------- Heatmap: eigene Canvas-Ebene, Dichte je Kategorie ----------
 const heatCats = new Set(store.get('heatCats', []));
+let extHeat = []; // importierte Heatmaps {label, title, pts:[[x,y,w]]}
+let heatSel = store.get('heatSel', ''); // gewählte importierte Heatmap "label|title"
+const heatOpen = new Set(store.get('heatOpen', []));
+const isExtMode = () => active().some((p) => p.id.startsWith('ext-'));
+const selHeat = () => (isExtMode() ? extHeat.find((h) => h.label + '|' + h.title === heatSel) : null);
 const heat = new (L.Layer.extend({
   onAdd(m) { this._c = L.DomUtil.create('canvas', 'heat', m.getPanes().overlayPane); m.on('moveend resize', this.redraw, this);
     m.on('zoomstart', () => (this._c.style.opacity = 0)); this.redraw(); },
@@ -371,6 +376,9 @@ const heat = new (L.Layer.extend({
     const m = this._map, c = this._c; if (!c) return;
     const sz = m.getSize(), pts = active().filter((p) => heatCats.has(p.cat));
     c.width = sz.x; c.height = sz.y; L.DomUtil.setPosition(c, m.containerPointToLayerPoint([0, 0])); c.style.opacity = 1;
+    const h = selHeat();
+    if (h) return this.weighted(c.getContext('2d'), sz, h.pts);
+    if (isExtMode() && extHeat.length) return;
     if (!pts.length) return;
     const r = Math.max(14, Math.min(70, 300 * 2 ** (m.getZoom() - 5))), ctx = c.getContext('2d');
     for (const p of pts) {
@@ -388,14 +396,33 @@ const heat = new (L.Layer.extend({
     }
     ctx.putImageData(img, 0, 0);
   },
+  // Gewichtete Punkte: feste Pixelgröße, Deckkraft je Gewicht, Farbe über Verlauf (Transparenz bleibt)
+  weighted(ctx, sz, pts) {
+    const m = this._map, r = 30, ws = pts.map((p) => p[2]).sort((a, b) => a - b), max = ws[Math.floor(ws.length * 0.9)] || 1;
+    for (const [x, y, w] of pts) {
+      const q = m.latLngToContainerPoint([y, x]);
+      if (q.x < -r || q.y < -r || q.x > sz.x + r || q.y > sz.y + r) continue;
+      const g = ctx.createRadialGradient(q.x, q.y, 0, q.x, q.y, r);
+      g.addColorStop(0, 'rgba(0,0,0,1)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.globalAlpha = Math.min(1, Math.max(0.05, w / max)); ctx.fillStyle = g; ctx.fillRect(q.x - r, q.y - r, 2 * r, 2 * r);
+    }
+    const img = ctx.getImageData(0, 0, sz.x, sz.y), d = img.data;
+    for (let i = 3; i < d.length; i += 4) {
+      if (!d[i]) continue;
+      const [cr, cg, cb] = HEAT_RAMP2[d[i]]; d[i - 3] = cr; d[i - 2] = cg; d[i - 1] = cb;
+    }
+    ctx.putImageData(img, 0, 0);
+  },
 }))().addTo(map);
-const HEAT_RAMP = (() => { // 256 Farbstufen aus einem Verlauf
+const ramp = (stops) => { // 256 Farbstufen aus einem Verlauf
   const c = document.createElement('canvas'); c.width = 256; c.height = 1; const x = c.getContext('2d');
   const g = x.createLinearGradient(0, 0, 256, 0);
-  [[0, '#2b6cff'], [.35, '#28e0c8'], [.6, '#b6f03c'], [.8, '#ffd23c'], [1, '#ff3c2b']].forEach(([o, col]) => g.addColorStop(o, col));
+  stops.forEach(([o, col]) => g.addColorStop(o, col));
   x.fillStyle = g; x.fillRect(0, 0, 256, 1);
   const d = x.getImageData(0, 0, 256, 1).data; return Array.from({ length: 256 }, (_, i) => [d[i * 4], d[i * 4 + 1], d[i * 4 + 2]]);
-})();
+};
+const HEAT_RAMP = ramp([[0, '#2b6cff'], [.35, '#28e0c8'], [.6, '#b6f03c'], [.8, '#ffd23c'], [1, '#ff3c2b']]);
+const HEAT_RAMP2 = ramp([[0, 'royalblue'], [.1, 'royalblue'], [.3, 'cyan'], [.5, 'lime'], [.7, 'yellow'], [1, 'red']]);
 
 // Bereich → Gruppe → Untertypen, je Ebene Anzeigen/Ausblenden
 function groupedChips() {
@@ -431,12 +458,21 @@ function renderChips() {
   const badge = (k) => `<span class="pin c-${k}${shape(k)}">${svg(k)}</span>`;
   const ext = active().some((p) => p.id.startsWith('ext-'));
   $('#filter').classList.toggle('ext', ext);
-  $('#state').innerHTML = !ext ? '' : `<button class="chip${hideFound ? ' off' : ''}" data-state="found"><span>${t('complete')}</span><small>${F}</small></button>
-    <button class="chip${hideOpen ? ' off' : ''}" data-state="open"><span>${t('incomplete')}</span><small>${N - F}</small></button>`;
+  $('#markers-h').textContent = t(ext ? 'allMarkers' : 'markers');
+  const ring = (k, off, n, lbl) => `<button class="ring-b${off ? ' off' : ''}" data-state="${k}" style="--p:${N ? (n / N) * 100 : 0}%">
+    <i class="ring"></i><span>${t(lbl)}</span><small>${n}/${N}</small></button>`;
+  $('#state').innerHTML = !ext ? '' : ring('found', hideFound, F, 'complete') + ring('open', hideOpen, N - F, 'incomplete');
   // Je Kategorie eine aufklappbare Gruppe mit Untertypen
   $('#chips').innerHTML = !ext ? stats.map(({ k, c, n, f, off }) => `<button class="chip${off}" data-cat="${k}" style="--c:${c.color};--p:${n ? (f / n) * 100 : 0}%">
       ${badge(k)}<span>${t('cat.' + k)}</span><small>${f}/${n}</small><b></b></button>`).join('') : groupedChips();
-  $('#heat-chips').innerHTML = stats.filter((x) => x.n).map(({ k, c, n }) => `<button class="chip${heatCats.has(k) ? '' : ' off'}" data-heat="${k}" style="--c:${c.color}">
+  const hx = ext && extHeat.length;
+  $('#heat-chips').classList.toggle('grid2', !hx);
+  if (hx) { // importierte Heatmaps: je Gruppe aufklappbar, eine Auswahl
+    const by = {}; extHeat.forEach((h, i) => (by[h.label] ||= []).push([h, i]));
+    $('#heat-chips').innerHTML = Object.entries(by).map(([lb, hs]) => `<section class="grp"><div class="grp-head">
+      <button class="grp-t" data-fold="${esc(lb)}"><span>${esc(lb)}</span><i class="chev${heatOpen.has(lb) ? ' open' : ''}"></i></button></div>
+      ${heatOpen.has(lb) ? `<div class="grid2">${hs.map(([h, i]) => `<button class="hchip${h.label + '|' + h.title === heatSel ? ' on' : ''}" data-hs="${i}">${esc(h.title)}</button>`).join('')}</div>` : ''}</section>`).join('');
+  } else $('#heat-chips').innerHTML = stats.filter((x) => x.n).map(({ k, c, n }) => `<button class="chip${heatCats.has(k) ? '' : ' off'}" data-heat="${k}" style="--c:${c.color}">
       ${badge(k)}<span>${t('cat.' + k)}</span><small>${n}</small></button>`).join('');
   heat.redraw();
   // Schnellfilter: Kategorien mit Einträgen zuerst
@@ -541,6 +577,9 @@ document.querySelectorAll('[data-all]').forEach((b) => (b.onclick = () => {
   store.set('hiddenCats', [...hidden]); render();
 }));
 $('#heat-chips').onclick = (e) => {
+  const fo = e.target.closest('[data-fold]')?.dataset.fold, hs = e.target.closest('[data-hs]')?.dataset.hs;
+  if (fo != null) { heatOpen.has(fo) ? heatOpen.delete(fo) : heatOpen.add(fo); store.set('heatOpen', [...heatOpen]); return renderChips(); }
+  if (hs != null) { const h = extHeat[hs], k = h.label + '|' + h.title; store.set('heatSel', (heatSel = heatSel === k ? '' : k)); return renderChips(); }
   const k = e.target.closest('[data-heat]')?.dataset.heat; if (!k) return;
   heatCats.has(k) ? heatCats.delete(k) : heatCats.add(k);
   store.set('heatCats', [...heatCats]); renderChips();
@@ -718,20 +757,25 @@ $('#btn-import').onclick = () => $('#import-file').click();
 $('#import-file').onchange = async (e) => {
   const f = e.target.files[0]; e.target.value = ''; if (!f) return;
   let l; try { l = JSON.parse(await f.text()); } catch { l = null; }
-  if (!Array.isArray(l) || !l.some((p) => p && p.id && Number.isFinite(p.x) && Number.isFinite(p.y))) { alert(t('ownInvalid')); return; }
-  await ownDB('readwrite', (s) => s.put(l, 'pois'));
+  const ps = Array.isArray(l) ? l : l?.pois, hm = Array.isArray(l?.heatmaps) ? l.heatmaps : null;
+  if (!Array.isArray(ps) || !ps.some((p) => p && p.id && Number.isFinite(p.x) && Number.isFinite(p.y))) { alert(t('ownInvalid')); return; }
+  await ownDB('readwrite', (s) => s.put(ps, 'pois'));
+  await ownDB('readwrite', (s) => (hm ? s.put(hm, 'heat') : s.delete('heat')));
   location.reload();
 };
 $('#btn-import-del').onclick = async () => {
   if (!confirm(t('ownDelConfirm'))) return;
   await ownDB('readwrite', (s) => s.delete('pois'));
+  await ownDB('readwrite', (s) => s.delete('heat'));
   location.reload();
 };
 
 // ---------- Daten laden ----------
 Promise.all([...DATA_FILES.map((f) => fetch(f).then((r) => (r.ok ? r.json() : [])).catch(() => [])),
-  ownGet().then((l) => { ownCount = l.length; showOwn(); return l; })])
+  ownGet().then((l) => { ownCount = l.length; showOwn(); return l; }),
+  ownDB('readonly', (s) => s.get('heat')).then((l) => l || []).catch(() => [])])
   .then((lists) => {
+    extHeat = lists.pop();
     lists.forEach((l, i) => l.forEach((p) => (p.src = DATA_SRC[i])));
     pois = lists.flat().filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
     for (const p of pois) {

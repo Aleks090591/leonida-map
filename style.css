@@ -204,3 +204,19 @@ button.ghost { background: rgba(255,255,255,.06); }
 #lang { display: flex; gap: 8px; }
 #lang button { flex: 1; background: rgba(255,255,255,.06); }
 #lang button.on { background: var(--accent); color: #fff; }
+
+/* Fortschritt als Ringe und importierte Heatmaps */
+#filter.ext #total { display: none; }
+#filter.ext #state { gap: 8px; margin-bottom: 10px; }
+.ring-b { display: flex; align-items: center; gap: 10px; padding: 10px; border: 1px solid var(--border); border-radius: 12px;
+  background: rgba(255,255,255,.04); color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.ring-b.off { opacity: .4; }
+.ring-b span { flex: 1; font-size: 13px; font-weight: 600; }
+.ring-b small { font-size: 11px; color: var(--muted); }
+.ring { flex: none; width: 30px; height: 30px; border-radius: 50%;
+  background: conic-gradient(var(--accent, #4ade80) var(--p), rgba(255,255,255,.12) 0);
+  -webkit-mask: radial-gradient(circle, transparent 55%, #000 57%); mask: radial-gradient(circle, transparent 55%, #000 57%); }
+.ring-b { flex-wrap: wrap; }
+.hchip { padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,.04);
+  color: var(--text); font: inherit; font-size: 12px; text-align: left; cursor: pointer; }
+.hchip.on { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.5); font-weight: 700; }
