@@ -29,9 +29,10 @@ button:active { transform: scale(.94); }
   margin-bottom: var(--safe-b) !important; }
 .leaflet-control-attribution a { color: rgba(255,255,255,.3); text-decoration: none; }
 
-/* Pins */
+/* Pins: dunkle Kontur um die Form */
+:root { --ol: drop-shadow(1.2px 0 0 #14101c) drop-shadow(-1.2px 0 0 #14101c) drop-shadow(0 1.2px 0 #14101c) drop-shadow(0 -1.2px 0 #14101c); }
 .pin { position: relative; isolation: isolate; width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center;
-  background: color-mix(in srgb, var(--c) 50%, #fff); filter: drop-shadow(0 1px 2px rgba(0,0,0,.65));
+  background: color-mix(in srgb, var(--c) 50%, #fff); filter: var(--ol) drop-shadow(0 1px 2px rgba(0,0,0,.65));
   transition: transform .2s var(--ease); }
 .pin.c-landmark, .pin.c-shop, .pin.c-activity { border-radius: 50%; }
 .pin.c-secret, .pin.c-weapon { background: none; }
@@ -39,12 +40,12 @@ button:active { transform: scale(.94); }
   background: color-mix(in srgb, var(--c) 50%, #fff); clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
 .pin.free::before { content: none; }
 .pin svg, .d-icon svg { width: 17px; height: 17px; fill: #14101c; }
-.pin.free { background: none; }
+.pin.free { background: none; filter: drop-shadow(0 1px 2px rgba(0,0,0,.65)); }
 .pin.free svg { width: 24px; height: 24px; fill: color-mix(in srgb, var(--c) 30%, #fff); stroke: #14101c; stroke-width: 2.4px;
   paint-order: stroke; stroke-linejoin: round; }
 .d-icon svg { width: 28px; height: 28px; fill: var(--c); }
 .pin.speculation { opacity: .6; }
-.pin.found { filter: grayscale(1); opacity: .45; }
+.pin.found { filter: var(--ol) grayscale(1); opacity: .45; }
 .pin.sel { transform: scale(1.35); z-index: 1; }
 .pin.sel::after { content: ""; position: absolute; inset: -8px; border-radius: 50%; border: 2px solid var(--c);
   animation: pulse 1.4s ease-out infinite; }
@@ -74,7 +75,7 @@ button:active { transform: scale(.94); }
   border-radius: 18px; border: 1px solid var(--border); background: var(--glass); backdrop-filter: var(--blur);
   -webkit-backdrop-filter: var(--blur); color: var(--text); font-size: 13.5px; font-weight: 600; white-space: nowrap;
   transition: background .2s, opacity .2s, transform .15s var(--ease); }
-.qchip .pin { flex: none; width: 22px; height: 22px; filter: none; }
+.qchip .pin { flex: none; width: 22px; height: 22px; filter: var(--ol); }
 .qchip .pin svg { width: 15px; height: 15px; } .qchip .pin.free svg { width: 22px; height: 22px; }
 .qchip b { position: absolute; left: 0; bottom: 0; height: 2px; width: var(--p); background: var(--c); }
 .qchip small { color: var(--muted); font-weight: 500; }
@@ -114,8 +115,9 @@ button:active { transform: scale(.94); }
   border-radius: 8px; border: 1px solid transparent; background: rgba(255,255,255,.08); color: var(--text);
   text-align: left; font-weight: 600; font-size: 13px; transition: opacity .2s, background .2s; }
 .chip > span:not(.pin) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.chip .pin { flex: none; width: 22px; height: 22px; filter: none; }
+.chip .pin { flex: none; width: 22px; height: 22px; filter: var(--ol); }
 .chip .pin svg { width: 15px; height: 15px; } .chip .pin.free svg { width: 22px; height: 22px; }
+.chip .pin.free, .qchip .pin.free { filter: none; }
 .chip small { flex: none; font-weight: 500; font-size: 12px; color: var(--muted); }
 .chip b { position: absolute; left: 0; bottom: 0; height: 2px; width: var(--p); background: var(--c); }
 .chip.off { opacity: .4; background: rgba(255,255,255,.03); }
