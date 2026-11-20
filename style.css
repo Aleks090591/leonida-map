@@ -34,16 +34,19 @@ button:active { transform: scale(.94); }
 .pin { position: relative; isolation: isolate; width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center;
   background: color-mix(in srgb, var(--c) 50%, #fff); filter: var(--ol) drop-shadow(0 1px 2px rgba(0,0,0,.65));
   transition: transform .2s var(--ease); }
-.pin.c-landmark, .pin.c-shop, .pin.c-activity { border-radius: 50%; }
-.pin.c-secret, .pin.c-weapon { background: none; }
-.pin.c-secret::before, .pin.c-weapon::before { content: ""; position: absolute; inset: 0; z-index: -1;
+.pin.oct { background: none; }
+.pin.oct::before { content: ""; position: absolute; inset: 0; z-index: -1;
   background: color-mix(in srgb, var(--c) 50%, #fff); clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
-.pin.free::before { content: none; }
 .pin svg, .d-icon svg { width: 17px; height: 17px; fill: #14101c; }
 .pin.free { background: none; filter: drop-shadow(0 1px 2px rgba(0,0,0,.65)); }
 .pin.free svg { width: 24px; height: 24px; fill: color-mix(in srgb, var(--c) 30%, #fff); stroke: #14101c; stroke-width: 2.4px;
   paint-order: stroke; stroke-linejoin: round; }
 .d-icon svg { width: 28px; height: 28px; fill: var(--c); }
+/* importierte Typen: Farbe exakt, nicht aufgehellt */
+.pin.t { background: var(--c); }
+.pin.t.oct, .pin.t.free { background: none; }
+.pin.t.oct::before { background: var(--c); }
+.pin.t.free svg { fill: var(--c); }
 .pin.speculation { opacity: .6; }
 .pin.found { filter: var(--ol) grayscale(1); opacity: .45; }
 .pin.sel { transform: scale(1.35); z-index: 1; }
@@ -125,6 +128,35 @@ button:active { transform: scale(.94); }
 .sec-head h3 { flex: 1; margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
 .sec-head button { height: 30px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: none;
   color: var(--text); font-size: 12px; font-weight: 600; }
+/* Gruppierte Ansicht (nur mit importierten Daten) */
+#filter.ext #chips { display: block; }
+#filter:not(.ext) #state, #filter.ext label.row:has(#hide-found) { display: none; }
+#state { margin-bottom: 8px; }
+#state .chip { background: none; color: var(--muted); font-weight: 400; }
+.grp { margin: 0 -8px 4px; }
+.grp-head { display: flex; align-items: center; }
+.grp-head button { height: 31px; padding: 0 4px; border: 0; background: none; color: var(--text);
+  font-size: 11px; font-weight: 700; text-transform: uppercase; }
+.grp-head .grp-t { position: relative; flex: 1; min-width: 0; height: 39px; display: flex; align-items: center; gap: 6px;
+  font-size: 15px; text-transform: none; text-align: left; }
+.grp-t > span:not(.pin) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.grp-t small { font-size: 11px; font-weight: 500; }
+.grp-head:not(.sec) .grp-t { height: 34px; font-size: 12px; text-transform: uppercase; color: var(--muted); }
+.grp-head.sec { margin: 6px 0 2px; border-bottom: 1px solid rgba(255,255,255,.12); }
+.grp-head.sec .grp-t { font-size: 18px; }
+.grp-t .pin { flex: none; width: 22px; height: 22px; filter: var(--ol); }
+.grp-t .pin svg { width: 15px; height: 15px; } .grp-t .pin.free { filter: none; } .grp-t .pin.free svg { width: 22px; height: 22px; }
+.grp-t b { position: absolute; left: 8px; right: 8px; bottom: 2px; height: 2px; border-radius: 1px; background: rgba(255,255,255,.08); }
+.grp-t b::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--p); background: var(--c); border-radius: inherit; }
+.chev { width: 7px; height: 7px; border: solid var(--muted); border-width: 0 2px 2px 0; transform: rotate(-45deg); transition: transform .2s; }
+.chev.open { transform: rotate(45deg); }
+.grp.off .grp-t { opacity: .5; }
+.grp .grid2 { gap: 0 4px; padding: 0 0 4px; }
+.chip.sub { height: 34px; gap: 12px; padding: 0 8px; background: none; color: #d3ddd9; font-weight: 700; }
+.chip.sub .pin { width: 20px; height: 20px; } .chip.sub .pin svg { width: 14px; height: 14px; } .chip.sub .pin.free svg { width: 20px; height: 20px; }
+.chip.sub small { font-size: 11px; }
+.chip.sub:hover { background: rgba(255,255,255,.06); }
+.chip.sub.off { opacity: .4; }
 .heat { pointer-events: none; }
 .row { display: flex; gap: 10px; align-items: center; margin-top: 14px; min-height: 44px; font-weight: 600; }
 .row input { width: 22px; height: 22px; accent-color: var(--accent); }
