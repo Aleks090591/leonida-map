@@ -370,8 +370,8 @@ function renderChips() {
       ${badge(k)}<span>${t('cat.' + k)}</span><small>${n}</small></button>`).join('');
   heat.redraw();
   // Schnellfilter: Kategorien mit Einträgen zuerst
-  $('#quick').innerHTML = [...stats].sort((a, b) => (b.n > 0) - (a.n > 0)).map(({ k, c, n, off }) =>
-    `<button class="qchip${off}${n ? '' : ' empty'}" data-cat="${k}" style="--c:${c.color}"><i></i>${t('cat.' + k)}<small>${n}</small></button>`).join('');
+  $('#quick').innerHTML = [...stats].sort((a, b) => (b.n > 0) - (a.n > 0)).map(({ k, c, n, f, off }) =>
+    `<button class="qchip${off}${n ? '' : ' empty'}" data-cat="${k}" style="--c:${c.color};--p:${n ? (f / n) * 100 : 0}%">${badge(k)}${t('cat.' + k)}<small>${f}/${n}</small><b></b></button>`).join('');
   $('#btn-filter').classList.toggle('on', hidden.size > 0 || hideFound || pois.some((p) => hiddenSrc.has(p.src)));
 }
 
