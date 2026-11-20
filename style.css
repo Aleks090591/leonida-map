@@ -32,21 +32,11 @@ button:active { transform: scale(.94); }
 /* Pins: nur ein Hauch Kante statt dunkler Kontur */
 :root { --ol: drop-shadow(0 0 .6px rgba(0,0,0,.6)); }
 .pin { position: relative; isolation: isolate; width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center;
-  background: color-mix(in srgb, var(--c) 50%, #fff); filter: var(--ol) drop-shadow(0 1px 2px rgba(0,0,0,.65));
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.65)); /* keine Fläche: nur das Symbol in Typfarbe */
   transition: transform .2s var(--ease); }
-.pin.oct { background: none; }
-.pin.oct::before { content: ""; position: absolute; inset: 0; z-index: -1;
-  background: color-mix(in srgb, var(--c) 50%, #fff); clip-path: polygon(30% 0, 70% 0, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0 70%, 0 30%); }
-.pin svg, .d-icon svg { width: 19px; height: 19px; fill: #14101c; }
-.pin.free { background: none; filter: drop-shadow(0 1px 2px rgba(0,0,0,.65)); }
-.pin.free svg { width: 24px; height: 24px; fill: color-mix(in srgb, var(--c) 30%, #fff); stroke: #14101c; stroke-width: 1.2px;
+.pin svg { width: 24px; height: 24px; fill: color-mix(in srgb, var(--c) 70%, #fff); stroke: #14101c; stroke-width: 1.2px;
   paint-order: stroke; stroke-linejoin: round; }
 .d-icon svg { width: 28px; height: 28px; fill: var(--c); }
-/* importierte Typen: Farbe exakt, nicht aufgehellt */
-.pin.t { background: var(--c); }
-.pin.t.oct, .pin.t.free { background: none; }
-.pin.t.oct::before { background: var(--c); }
-.pin.t.free svg { fill: var(--c); }
 .pin.speculation { opacity: .6; }
 .pin.found { filter: var(--ol) grayscale(1); opacity: .45; }
 .pin.sel { transform: scale(1.35); z-index: 1; }
@@ -79,7 +69,7 @@ button:active { transform: scale(.94); }
   -webkit-backdrop-filter: var(--blur); color: var(--text); font-size: 13.5px; font-weight: 600; white-space: nowrap;
   transition: background .2s, opacity .2s, transform .15s var(--ease); }
 .qchip .pin { flex: none; width: 22px; height: 22px; filter: var(--ol); }
-.qchip .pin svg { width: 17px; height: 17px; } .qchip .pin.free svg { width: 22px; height: 22px; }
+.qchip .pin svg { width: 22px; height: 22px; }
 .qchip b { position: absolute; left: 0; bottom: 0; height: 2px; width: var(--p); background: var(--c); }
 .qchip small { color: var(--muted); font-weight: 500; }
 .qchip.off { opacity: .45; }
@@ -119,8 +109,8 @@ button:active { transform: scale(.94); }
   text-align: left; font-weight: 600; font-size: 13px; transition: opacity .2s, background .2s; }
 .chip > span:not(.pin) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chip .pin { flex: none; width: 22px; height: 22px; filter: var(--ol); }
-.chip .pin svg { width: 17px; height: 17px; } .chip .pin.free svg { width: 22px; height: 22px; }
-.chip .pin.free, .qchip .pin.free { filter: none; }
+.chip .pin svg { width: 22px; height: 22px; }
+.chip .pin, .qchip .pin { filter: none; }
 .chip small { flex: none; font-weight: 500; font-size: 12px; color: var(--muted); }
 .chip b { position: absolute; left: 0; bottom: 0; height: 2px; width: var(--p); background: var(--c); }
 .chip.off { opacity: .4; background: rgba(255,255,255,.03); }
@@ -145,7 +135,7 @@ button:active { transform: scale(.94); }
 .grp-head.sec { margin: 6px 0 2px; border-bottom: 1px solid rgba(255,255,255,.12); }
 .grp-head.sec .grp-t { font-size: 18px; }
 .grp-t .pin { flex: none; width: 22px; height: 22px; filter: var(--ol); }
-.grp-t .pin svg { width: 17px; height: 17px; } .grp-t .pin.free { filter: none; } .grp-t .pin.free svg { width: 22px; height: 22px; }
+.grp-t .pin { filter: none; } .grp-t .pin svg { width: 22px; height: 22px; }
 .grp-t b { position: absolute; left: 8px; right: 8px; bottom: 2px; height: 2px; border-radius: 1px; background: rgba(255,255,255,.08); }
 .grp-t b::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--p); background: var(--c); border-radius: inherit; }
 .chev { width: 7px; height: 7px; border: solid var(--muted); border-width: 0 2px 2px 0; transform: rotate(-45deg); transition: transform .2s; }
@@ -153,7 +143,7 @@ button:active { transform: scale(.94); }
 .grp.off .grp-t { opacity: .5; }
 .grp .grid2 { gap: 0 4px; padding: 0 0 4px; }
 .chip.sub { height: 34px; gap: 12px; padding: 0 8px; background: none; color: #d3ddd9; font-weight: 700; }
-.chip.sub .pin { width: 20px; height: 20px; } .chip.sub .pin svg { width: 14px; height: 14px; } .chip.sub .pin.free svg { width: 20px; height: 20px; }
+.chip.sub .pin { width: 20px; height: 20px; } .chip.sub .pin svg { width: 20px; height: 20px; }
 .chip.sub small { font-size: 11px; }
 .chip.sub:hover { background: rgba(255,255,255,.06); }
 .chip.sub.off { opacity: .4; }

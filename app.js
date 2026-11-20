@@ -321,14 +321,14 @@ const OCT = new Set(['side', 'bank', 'loan', 'pawn', 'ring', 'jewel']);
 const shape = (g) => (FREE.has(g) ? ' free' : OCT.has(g) ? ' oct' : '');
 // Importierte Typen: eigene Farbe und Form je Typ
 const TYPE_STYLE = {};
-[['#f8f8f8', ' free', "ATM|Safe|Electric Charger|Bus Stop|Ferry Terminal|Rental Vehicle|Landmark|Curiosity|Sculpture|Book Swap|Magazine|Unique Playlist|1010 Mural|Basketball Hoop|Pool Table|Arcade Machine|Stunt Jump|Base Jump|Knife Flight|Under the Bridge"],
- ['#98b0f0', '', "Gym|Club|Golf Course|Mini-Golf Course|Shooting Range|Racing Introduction|Racing Challenge|Ambrosia Raceway|Gellhorn Raceway|Hamlet Boone Speedway|Thrillbilly Mud Club|Animal Crackers|Hit 'n' Run VC|Top Fun Drones"],
- ['#f8d8d0', '', "Ammu-Nation|Pay 'N' Spray|Mod Shop|Casual & Street|Sportswear|Formal|Souvenir & Swimwear|Thrift|Footwear|Hair & Beauty|Tattoos|Electronics"],
- ['#70d070', ' oct', "Bank|Big Bank|Payday Loans|Low-End Jewelry Store|High-End Jewelry Store|Pawn Shop|ATM (Towable)"],
- ['#d8e0f8', '', "Convenience Store|Fast Food|Street Food|Liquor Store|Gas Station|Car Wash|Train Station|Cafes & Takeout|Bar"],
- ['#b8e0b8', '', 'Contact'], ['#20e8c8', '', 'Garage|Purchasable Garage'],
- ['#f8d060', ' oct', "Standout Vehicle|Jack of Hearts|Delights|Nine1Nine|Kingfishers|Kolt & Associates|M7|La Polilla Negra|Final Chapter|San4San|PTT Youngin$|The Guardia Brothers|Criminals"],
- ['#50c8f0', '', 'Randy Vehicle'], ['#e080b0', '', 'Moses Vehicle'], ['#c0a0f0', '', 'Fishing Hotspot'],
+[['#ffffff', ' free', "ATM|Safe|Electric Charger|Bus Stop|Ferry Terminal|Rental Vehicle|Landmark|Curiosity|Sculpture|Book Swap|Magazine|Unique Playlist|1010 Mural|Basketball Hoop|Pool Table|Arcade Machine|Stunt Jump|Base Jump|Knife Flight|Under the Bridge"],
+ ['#4f6bff', '', "Gym|Club|Golf Course|Mini-Golf Course|Shooting Range|Racing Introduction|Racing Challenge|Ambrosia Raceway|Gellhorn Raceway|Hamlet Boone Speedway|Thrillbilly Mud Club|Animal Crackers|Hit 'n' Run VC|Top Fun Drones"],
+ ['#ff6a55', '', "Ammu-Nation|Pay 'N' Spray|Mod Shop|Casual & Street|Sportswear|Formal|Souvenir & Swimwear|Thrift|Footwear|Hair & Beauty|Tattoos|Electronics"],
+ ['#2ecc40', ' oct', "Bank|Big Bank|Payday Loans|Low-End Jewelry Store|High-End Jewelry Store|Pawn Shop|ATM (Towable)"],
+ ['#8aa4ff', '', "Convenience Store|Fast Food|Street Food|Liquor Store|Gas Station|Car Wash|Train Station|Cafes & Takeout|Bar"],
+ ['#a5e635', '', 'Contact'], ['#20e8c8', '', 'Garage|Purchasable Garage'],
+ ['#ffc400', ' oct', "Standout Vehicle|Jack of Hearts|Delights|Nine1Nine|Kingfishers|Kolt & Associates|M7|La Polilla Negra|Final Chapter|San4San|PTT Youngin$|The Guardia Brothers|Criminals"],
+ ['#50c8f0', '', 'Randy Vehicle'], ['#ff4fa3', '', 'Moses Vehicle'], ['#a36bff', '', 'Fishing Hotspot'],
 ].forEach(([c, sh, l]) => l.split('|').forEach((n) => (TYPE_STYLE[n] = [c, sh])));
 // Klassen + Stil eines Pins: importierte Typen exakt gefärbt, sonst Kategoriefarbe
 function pinAttr(p) {
